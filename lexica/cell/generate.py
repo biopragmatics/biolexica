@@ -1,0 +1,74 @@
+import semra
+import biolexica
+from pathlib import Path
+
+HERE = Path(__file__).parent.resolve()
+TERMS_PATH = HERE.joinpath("terms.tsv.gz")
+
+PRIORITY = ["mesh", "efo", "cellosaurus", "ccle", "depmap", "bto", "cl", "clo"]
+BIOLEXICA_CONFIG = [
+    biolexica.Input(source="mesh", processor="pyobo", ancestors=["mesh:D002477"]),  # cells
+    biolexica.Input(source="efo", processor="pyobo", ancestors=["efo:0000324"]),
+    biolexica.Input(source="cellosaurus", processor="pyobo"),
+    # Input(source="ccle", processor="pyobo"),
+    biolexica.Input(source="bto", processor="pyobo"),
+    biolexica.Input(source="cl", processor="pyobo"),
+    biolexica.Input(source="clo", processor="pyobo"),
+]
+
+SEMRA_CONFIG = semra.Configuration(
+    name="Cell and Cell Line Mappings",
+    description="Originally a reproduction of the EFO/Cellosaurus/DepMap/CCLE scenario "
+    "posed in the Biomappings paper, this configuration imports several different cell and "
+    "cell line resources and identifies mappings between them.",
+    inputs=[
+        semra.Input(source="biomappings"),
+        semra.Input(source="gilda"),
+        semra.Input(prefix="cellosaurus", source="pyobo", confidence=0.99),
+        semra.Input(prefix="bto", source="bioontologies", confidence=0.99),
+        semra.Input(prefix="cl", source="bioontologies", confidence=0.99),
+        semra.Input(prefix="clo", source="custom", confidence=0.99),
+        semra.Input(prefix="efo", source="pyobo", confidence=0.99),
+        semra.Input(
+            prefix="depmap",
+            source="pyobo",
+            confidence=0.99,
+            extras={"version": "22Q4", "standardize": True, "license": "CC-BY-4.0"},
+        ),
+        semra.Input(
+            prefix="ccle",
+            source="pyobo",
+            confidence=0.99,
+            extras={"version": "2019"},
+        ),
+    ],
+    add_labels=False,
+    priority=PRIORITY,
+    keep_prefixes=PRIORITY,
+    remove_imprecise=False,
+    mutations=[
+        semra.Mutation(source="efo", confidence=0.7),
+        semra.Mutation(source="bto", confidence=0.7),
+        semra.Mutation(source="cl", confidence=0.7),
+        semra.Mutation(source="clo", confidence=0.7),
+        semra.Mutation(source="depmap", confidence=0.7),
+        semra.Mutation(source="ccle", confidence=0.7),
+        semra.Mutation(source="cellosaurus", confidence=0.7),
+    ],
+    raw_pickle_path=HERE.joinpath("mappings_raw.pkl.gz"),
+    processed_pickle_path=HERE.joinpath("mappings_processed.pkl.gz"),
+    priority_pickle_path=HERE.joinpath("mappings_prioritized.pkl"),
+)
+
+
+def _main() -> None:
+    mappings = SEMRA_CONFIG.get_mappings()
+    biolexica.assemble_terms(
+        inputs=BIOLEXICA_CONFIG,
+        mappings=mappings,
+        output_path=TERMS_PATH,
+    )
+
+
+if __name__ == "__main__":
+    _main()

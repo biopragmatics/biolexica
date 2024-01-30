@@ -50,20 +50,17 @@ def assemble_terms(
     mappings: Optional[List["semra.Mapping"]] = None,
     *,
     include_biosynonyms: bool = True,
+    output_path: Optional[Path] = None,
 ) -> list[gilda.Term]:
     """Assemble terms from multiple resources."""
     terms = []
     for inp in inputs:
         if inp.processor in {"pyobo", "bioontologies"}:
             terms.extend(
-                iter_terms_by_prefix(
-                    inp.source, ancestors=inp.ancestors, processor=inp.processor
-                )
+                iter_terms_by_prefix(inp.source, ancestors=inp.ancestors, processor=inp.processor)
             )
         elif inp.processor == "biosynonyms":
-            terms.extend(
-                s.as_gilda_term() for s in biosynonyms.parse_synonyms(inp.source)
-            )
+            terms.extend(s.as_gilda_term() for s in biosynonyms.parse_synonyms(inp.source))
         else:
             raise ValueError(f"Unknown processor {inp.processor}")
 
@@ -74,6 +71,9 @@ def assemble_terms(
         from semra.gilda_utils import update_terms
 
         terms = update_terms(terms, mappings)
+
+    if output_path is not None:
+        gilda.term.dump_terms(terms, output_path)
 
     return terms
 
@@ -101,9 +101,7 @@ def iter_terms_by_prefix(
         raise ValueError(f"Unknown processor: {processor}")
 
 
-def _get_pyobo_subset_terms(
-    source: str, ancestors: str | list[str]
-) -> Iterable[gilda.Term]:
+def _get_pyobo_subset_terms(source: str, ancestors: str | list[str]) -> Iterable[gilda.Term]:
     from pyobo.gilda_utils import get_gilda_terms
 
     subset = {
@@ -141,17 +139,11 @@ def _get_bioontologies_subset_terms(
             graph.add_edge(edge.subject.curie, edge.object.curie)
 
     descendant_curies = {
-        descendant
-        for c in _ensure_list(parent_curie)
-        for descendant in nx.ancestors(graph, c)
+        descendant for c in _ensure_list(parent_curie) for descendant in nx.ancestors(graph, c)
     }
 
     for node in tqdm(obograph.nodes, leave=False):
-        if (
-            not node.name
-            or node.reference is None
-            or node.reference.curie not in descendant_curies
-        ):
+        if not node.name or node.reference is None or node.reference.curie not in descendant_curies:
             continue
         yield gilda.Term(
             norm_text=normalize(node.name),
@@ -172,81 +164,3 @@ def _get_bioontologies_subset_terms(
                 status="synonym",
                 source=source,
             )
-
-
-def _main() -> None:
-    import pystow
-    import semra
-
-    PRIORITY = ["mesh", "efo", "cellosaurus", "ccle", "depmap", "bto", "cl", "clo"]
-    MODULE = pystow.module("semra", "case-studies", "cancer-cell-lines")
-    PRIORITY_SSSOM_PATH = MODULE.join(name="priority.sssom.tsv")
-
-    biolexica_input = [
-        Input(source="mesh", processor="pyobo", ancestors=["mesh:D002477"]),  # cells
-        Input(source="efo", processor="pyobo", ancestors=["efo:0000324"]),
-        Input(source="cellosaurus", processor="pyobo"),
-        # Input(source="ccle", processor="pyobo"),
-        Input(source="bto", processor="pyobo"),
-        Input(source="cl", processor="pyobo"),
-        Input(source="clo", processor="pyobo"),
-    ]
-
-    semra_config = semra.Configuration(
-        name="Cell and Cell Line Mappings",
-        description="Originally a reproduction of the EFO/Cellosaurus/DepMap/CCLE scenario "
-        "posed in the Biomappings paper, this configuration imports several different cell and "
-        "cell line resources and identifies mappings between them.",
-        inputs=[
-            semra.Input(source="biomappings"),
-            semra.Input(source="gilda"),
-            semra.Input(prefix="cellosaurus", source="pyobo", confidence=0.99),
-            semra.Input(prefix="bto", source="bioontologies", confidence=0.99),
-            semra.Input(prefix="cl", source="bioontologies", confidence=0.99),
-            semra.Input(prefix="clo", source="custom", confidence=0.99),
-            semra.Input(prefix="efo", source="pyobo", confidence=0.99),
-            semra.Input(
-                prefix="depmap",
-                source="pyobo",
-                confidence=0.99,
-                extras={"version": "22Q4", "standardize": True, "license": "CC-BY-4.0"},
-            ),
-            semra.Input(
-                prefix="ccle",
-                source="pyobo",
-                confidence=0.99,
-                extras={"version": "2019"},
-            ),
-        ],
-        add_labels=False,
-        priority=PRIORITY,
-        keep_prefixes=PRIORITY,
-        remove_imprecise=False,
-        mutations=[
-            semra.Mutation(source="efo", confidence=0.7),
-            semra.Mutation(source="bto", confidence=0.7),
-            semra.Mutation(source="cl", confidence=0.7),
-            semra.Mutation(source="clo", confidence=0.7),
-            semra.Mutation(source="depmap", confidence=0.7),
-            semra.Mutation(source="ccle", confidence=0.7),
-            semra.Mutation(source="cellosaurus", confidence=0.7),
-        ],
-        raw_pickle_path=MODULE.join(name="raw.pkl"),
-        raw_sssom_path=MODULE.join(name="raw.sssom.tsv"),
-        raw_neo4j_path=MODULE.join("neo4j_raw"),
-        processed_pickle_path=MODULE.join(name="processed.pkl"),
-        processed_sssom_path=MODULE.join(name="processed.sssom.tsv"),
-        processed_neo4j_path=MODULE.join("neo4j"),
-        processed_neo4j_name="semra-cell",
-        priority_pickle_path=MODULE.join(name="priority.pkl"),
-        priority_sssom_path=PRIORITY_SSSOM_PATH,
-    )
-
-    mappings = semra_config.get_mappings()
-
-    terms = assemble_terms(inputs=biolexica_input, mappings=mappings)
-    gilda.term.dump_terms(terms, HERE.joinpath("terms.tsv.gz"))
-
-
-if __name__ == "__main__":
-    _main()
