@@ -1,5 +1,6 @@
 """API for assembling biomedial lexica."""
 
+import logging
 from pathlib import Path
 from typing import TYPE_CHECKING, Iterable, List, Literal, Optional
 
@@ -7,6 +8,7 @@ import bioregistry
 import biosynonyms
 import gilda
 import pyobo
+from gilda.grounder import load_entries_from_terms_file
 from gilda.process import normalize
 from pydantic import BaseModel
 from tqdm.auto import tqdm
@@ -20,8 +22,10 @@ __all__ = [
     "iter_terms_by_prefix",
 ]
 
+logger = logging.getLogger(__name__)
+
 HERE = Path(__file__).parent.resolve()
-Processor = Literal["pyobo", "bioontologies", "biosynonyms"]
+Processor = Literal["pyobo", "bioontologies", "biosynonyms", "gilda"]
 
 
 class Input(BaseModel):
@@ -50,7 +54,8 @@ def assemble_terms(
     mappings: Optional[List["semra.Mapping"]] = None,
     *,
     include_biosynonyms: bool = True,
-    output_path: Optional[Path] = None,
+    raw_path: Optional[Path] = None,
+    processed_path: Optional[Path] = None,
 ) -> list[gilda.Term]:
     """Assemble terms from multiple resources."""
     terms: list[gilda.Term] = []
@@ -61,19 +66,26 @@ def assemble_terms(
             )
         elif inp.processor == "biosynonyms":
             terms.extend(s.as_gilda_term() for s in biosynonyms.parse_synonyms(inp.source))
+        elif inp.processor == "gilda":
+            terms.extend(load_entries_from_terms_file(inp.source))
         else:
             raise ValueError(f"Unknown processor {inp.processor}")
 
     if include_biosynonyms:
         terms.extend(biosynonyms.get_gilda_terms())
 
+    if raw_path is not None:
+        logger.info("Writing %d raw terms to %s", len(terms), raw_path)
+        gilda.term.dump_terms(terms, raw_path)
+
     if mappings is not None:
         from semra.gilda_utils import update_terms
 
         terms = update_terms(terms, mappings)
 
-    if output_path is not None:
-        gilda.term.dump_terms(terms, output_path)
+    if processed_path is not None:
+        logger.info("Writing %d processed terms to %s", len(terms), processed_path)
+        gilda.term.dump_terms(terms, processed_path)
 
     return terms
 

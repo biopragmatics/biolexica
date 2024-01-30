@@ -64,7 +64,7 @@ def _main() -> None:
     biolexica.assemble_terms(
         inputs=BIOLEXICA_CONFIG,
         mappings=mappings,
-        output_path=TERMS_PATH,
+        processed_path=TERMS_PATH,
     )
 
 
