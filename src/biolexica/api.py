@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     import semra
 
 __all__ = [
+    "TermsInput",
     "Input",
     "assemble_terms",
     "iter_terms_by_prefix",
@@ -36,8 +37,14 @@ class Input(BaseModel):
     ancestors: None | str | list[str] = None
 
 
+class TermsInput(BaseModel):
+    """An input towards lexicon assembly."""
+
+    terms: list[gilda.Term]
+
+
 def assemble_grounder(
-    inputs: list[Input],
+    inputs: list[Input | TermsInput],
     mappings: Optional[List["semra.Mapping"]] = None,
     *,
     include_biosynonyms: bool = True,
@@ -50,7 +57,7 @@ def assemble_grounder(
 
 
 def assemble_terms(
-    inputs: list[Input],
+    inputs: list[Input | TermsInput],
     mappings: Optional[List["semra.Mapping"]] = None,
     *,
     include_biosynonyms: bool = True,
@@ -60,7 +67,9 @@ def assemble_terms(
     """Assemble terms from multiple resources."""
     terms: list[gilda.Term] = []
     for inp in inputs:
-        if inp.processor in {"pyobo", "bioontologies"}:
+        if isinstance(inp, TermsInput):
+            terms.extend(inp.terms)
+        elif inp.processor in {"pyobo", "bioontologies"}:
             terms.extend(
                 iter_terms_by_prefix(inp.source, ancestors=inp.ancestors, processor=inp.processor)
             )
