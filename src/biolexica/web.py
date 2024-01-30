@@ -1,14 +1,13 @@
 """A FastAPI wrapper for Gilda."""
 
+import pathlib
 from typing import Union
 
 import fastapi
 import gilda
-from pydantic import BaseModel
-
-from fastapi import FastAPI, Request
 from curies import Reference
-import pathlib
+from fastapi import FastAPI, Request
+from pydantic import BaseModel
 
 __all__ = [
     "run_app",
@@ -67,6 +66,8 @@ def summarize(request: Request):
 
 
 @api_router.get("/ground/{text}", response_model=list[Match])
-def ground(request: Request, text: str = fastapi.Path(..., description="Text to be grounded.")):
+def ground(
+    request: Request, text: str = fastapi.Path(..., description="Text to be grounded.")  # noqa:B008
+):
     """Ground text using Gilda."""
     return _ground(request, text)

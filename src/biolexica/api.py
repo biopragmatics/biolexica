@@ -53,7 +53,7 @@ def assemble_terms(
     output_path: Optional[Path] = None,
 ) -> list[gilda.Term]:
     """Assemble terms from multiple resources."""
-    terms = []
+    terms: list[gilda.Term] = []
     for inp in inputs:
         if inp.processor in {"pyobo", "bioontologies"}:
             terms.extend(

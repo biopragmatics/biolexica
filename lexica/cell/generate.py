@@ -1,6 +1,8 @@
-import semra
-import biolexica
 from pathlib import Path
+
+import semra
+
+import biolexica
 
 HERE = Path(__file__).parent.resolve()
 TERMS_PATH = HERE.joinpath("terms.tsv.gz")

@@ -29,24 +29,19 @@
         <img src="https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg" alt="Contributor Covenant"/></a>
 </p>
 
-Generate and apply coherent biomedical lexica
+`biolexica` helps generate and apply coherent biomedical lexica. It takes care of the following:
 
-## 💪 Getting Started
+1. Getting names and synonyms from a diverse set of inputs (ontologies, databases, custom)
+   using `pyobo`, `bioontologies`, `biosynonyms`, and more.
+2. Merging equivalent terms to best take advantage of different synonyms for the same term from different sources
+   using `semra`.
+3. Generating lexical index and doing NER using `gilda`
 
-> TODO show in a very small amount of space the **MOST** useful thing your package can do.
-> Make it as short as possible! You have an entire set of docs for later.
+Importantly, we pre-define lexica for several entity types that can be readily used with Gilda in
+the [`lexica/`](lexica/) folder including:
 
-### Command Line Interface
-
-The biolexica command line tool is automatically installed. It can
-be used from the shell with the `--help` flag to show all subcommands:
-
-```shell
-biolexica --help
-```
-
-> TODO show the most useful thing the CLI does! The CLI will have documentation auto-generated
-> by `sphinx`.
+1. Cells and cell lines
+2. Diseased, conditions, and other phenotypes
 
 ## 🚀 Installation
 
@@ -68,7 +63,8 @@ pip install git+https://github.com/biopragmatics/biolexica.git
 ## 👐 Contributing
 
 Contributions, whether filing an issue, making a pull request, or forking, are appreciated. See
-[CONTRIBUTING.md](https://github.com/biopragmatics/biolexica/blob/master/.github/CONTRIBUTING.md) for more information on getting involved.
+[CONTRIBUTING.md](https://github.com/biopragmatics/biolexica/blob/master/.github/CONTRIBUTING.md) for more information
+on getting involved.
 
 ## 👋 Attribution
 
@@ -152,7 +148,7 @@ extra specified in the [`setup.cfg`](setup.cfg). `sphinx` plugins
 like `texext` can be added there. Additionally, they need to be added to the
 `extensions` list in [`docs/source/conf.py`](docs/source/conf.py).
 
-The documentation can be deployed to [ReadTheDocs](https://readthedocs.io) using 
+The documentation can be deployed to [ReadTheDocs](https://readthedocs.io) using
 [this guide](https://docs.readthedocs.io/en/stable/intro/import-guide.html).
 The [`.readthedocs.yml`](.readthedocs.yml) YAML file contains all the configuration you'll need.
 You can also set up continuous integration on GitHub to check not only that
