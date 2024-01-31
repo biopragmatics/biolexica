@@ -42,7 +42,8 @@ Importantly, we pre-define lexica for several entity types that can be readily u
 the [`lexica/`](lexica/) folder including:
 
 1. [Cells and cell lines](lexica/cell)
-2. [Diseased, conditions, and other phenotypes](lexica/phenotype)
+2. [Diseases, conditions, and other phenotypes](lexica/phenotype)
+3. [Anatomical terms, tissues, organ systems, etc.](lexica/anatomy)
 
 ## 🚀 Installation
 

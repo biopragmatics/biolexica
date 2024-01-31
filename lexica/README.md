@@ -5,6 +5,7 @@ used with [Gilda](https://github.com/gyorilab/gilda):
 
 1. [`cell`](cell) contains cells and cell lines
 2. [`phenotype`](cell) contains diseases, phenotypes, and other conditions
+3. [`anatomy`](anatomy) contains anatomical terms, tissues, organ systems, and related
 
 Each has declarative configuration and a reproducible rebuild script such
 that the resources can be updated periodically, either as the underlying
