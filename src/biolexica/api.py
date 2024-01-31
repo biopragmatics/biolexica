@@ -23,6 +23,7 @@ __all__ = [
     "assemble_terms",
     "iter_terms_by_prefix",
     "load_grounder",
+    "get_mesh_category_curies",
 ]
 
 logger = logging.getLogger(__name__)
@@ -139,7 +140,7 @@ def _get_pyobo_subset_terms(source: str, ancestors: Union[str, List[str]]) -> It
     subset = {
         descendant
         for parent_curie in _ensure_list(ancestors)
-        for descendant in pyobo.get_descendants(*parent_curie.split(":"))
+        for descendant in pyobo.get_descendants(*parent_curie.split(":")) or []
     }
     for term in get_gilda_terms(source):
         if bioregistry.curie_to_str(term.db, term.id) in subset:
@@ -196,3 +197,26 @@ def _get_bioontologies_subset_terms(
                 status="synonym",
                 source=source,
             )
+
+
+def get_mesh_category_curies(letter, skip=None) -> List[str]:
+    """Get the MeSH LUIDs for a category, by letter (e.g., "A")."""
+    # see https://meshb.nlm.nih.gov/treeView
+
+    import bioversions
+    from pyobo.sources.mesh import get_tree_to_mesh_id
+
+    mesh_version = bioversions.get_version("mesh")
+    if mesh_version is None:
+        raise ValueError
+    tree_to_mesh = get_tree_to_mesh_id(mesh_version)
+    rv = []
+    for i in range(1, 100):
+        key = f"{letter}{i:02}"
+        if skip and key in skip:
+            continue
+        mesh_id = tree_to_mesh.get(key)
+        if mesh_id is None:
+            break
+        rv.append(f"mesh:{mesh_id}")
+    return rv
