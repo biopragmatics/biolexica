@@ -1,13 +1,14 @@
 """A FastAPI wrapper for Gilda."""
 
-import pathlib
-from typing import List, Union
+from typing import List
 
 import fastapi
 import gilda
 from curies import Reference
 from fastapi import FastAPI, Request
 from pydantic import BaseModel
+
+from biolexica.api import GrounderHint, load_grounder
 
 __all__ = [
     "run_app",
@@ -25,20 +26,17 @@ class Match(BaseModel):
     score: float
 
 
-def run_app(grounder: Union[gilda.Grounder, str, pathlib.Path]):
+def run_app(grounder: GrounderHint):
     """Costruct a FastAPI app from a Gilda grounder and run with :mod:`uvicorn`."""
     import uvicorn
-
-    if isinstance(grounder, (str, pathlib.Path)):
-        grounder = gilda.Grounder(grounder)
 
     uvicorn.run(get_app(grounder))
 
 
-def get_app(grounder: gilda.Grounder) -> FastAPI:
+def get_app(grounder: GrounderHint) -> FastAPI:
     """Construct a FastAPI app from a Gilda grounder."""
     app = FastAPI(title="Biolexica Grounder")
-    app.state = grounder
+    app.state = load_grounder(grounder)
     app.include_router(api_router, prefix="/api")
     return app
 

@@ -1,8 +1,10 @@
 """API for assembling biomedial lexica."""
 
 import logging
+import tempfile
 from pathlib import Path
 from typing import TYPE_CHECKING, Iterable, List, Literal, Optional, Union
+from urllib.request import urlretrieve
 
 import bioregistry
 import biosynonyms
@@ -21,12 +23,15 @@ __all__ = [
     "Input",
     "assemble_terms",
     "iter_terms_by_prefix",
+    "load_grounder",
 ]
 
 logger = logging.getLogger(__name__)
 
 HERE = Path(__file__).parent.resolve()
 Processor = Literal["pyobo", "bioontologies", "biosynonyms", "gilda"]
+
+GrounderHint = Union[gilda.Grounder, str, Path]
 
 
 class Input(BaseModel):
@@ -41,6 +46,18 @@ class TermsInput(BaseModel):
     """An input towards lexicon assembly."""
 
     terms: List[gilda.Term]
+
+
+def load_grounder(grounder: GrounderHint) -> gilda.Grounder:
+    """Load a gilda grounder, potentially from a remote location."""
+    if isinstance(grounder, str) and grounder.startswith("http"):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory).joinpath("terms.tsv.gz")
+            urlretrieve(grounder, path)  # noqa:S310
+            return gilda.Grounder(path)
+    if isinstance(grounder, (str, Path)):
+        return gilda.Grounder(grounder)
+    return grounder
 
 
 def assemble_grounder(
