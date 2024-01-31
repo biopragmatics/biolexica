@@ -1,4 +1,4 @@
-# Cell and Cell Line Lexicon
+# Disease, Phenotype, and Condition Lexicon
 
 This directory contains a coherent, merged lexical index for the following resources:
 
