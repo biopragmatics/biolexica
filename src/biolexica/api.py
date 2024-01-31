@@ -140,7 +140,7 @@ def _get_pyobo_subset_terms(source: str, ancestors: Union[str, List[str]]) -> It
     subset = {
         descendant
         for parent_curie in _ensure_list(ancestors)
-        for descendant in pyobo.get_descendants(*parent_curie.split(":"))
+        for descendant in pyobo.get_descendants(*parent_curie.split(":")) or []
     }
     for term in get_gilda_terms(source):
         if bioregistry.curie_to_str(term.db, term.id) in subset:
@@ -201,8 +201,8 @@ def _get_bioontologies_subset_terms(
 
 def get_mesh_category_curies(letter) -> List[str]:
     """Get the MeSH LUIDs for a category, by letter (e.g., "A")."""
-    from pyobo.sources.mesh import get_tree_to_mesh_id
     import bioversions
+    from pyobo.sources.mesh import get_tree_to_mesh_id
 
     mesh_version = bioversions.get_version("mesh")
     if mesh_version is None:

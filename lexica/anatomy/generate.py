@@ -12,21 +12,27 @@ PRIORITY = [
     "mesh",
     "bto",
     "caro",
+    "ncit",
+    # "umls", # TODO find appropriate subset
 ]
 BIOLEXICA_CONFIG = [
     biolexica.Input(source="uberon", processor="pyobo"),
     biolexica.Input(
         source="mesh", ancestors=biolexica.get_mesh_category_curies("A"), processor="pyobo"
     ),
+    biolexica.Input(
+        source="ncit",
+        ancestors=[
+            "NCIT:C12219",  # Anatomic Structure, System, or Substance
+        ],
+        processor="pyobo",
+    ),
     biolexica.Input(source="bto", processor="pyobo"),
     biolexica.Input(source="caro", processor="pyobo"),
 ]
 
 SEMRA_CONFIG = semra.Configuration(
-    name="Anatomy mappints",
-    description="Originally a reproduction of the EFO/Cellosaurus/DepMap/CCLE scenario "
-    "posed in the Biomappings paper, this configuration imports several different cell and "
-    "cell line resources and identifies mappings between them.",
+    name="Anatomy mappings",
     inputs=[
         semra.Input(source="biomappings"),
         semra.Input(source="gilda"),
@@ -34,6 +40,8 @@ SEMRA_CONFIG = semra.Configuration(
         semra.Input(prefix="bto", source="pyobo", confidence=0.99),
         semra.Input(prefix="caro", source="pyobo", confidence=0.99),
         semra.Input(prefix="mesh", source="pyobo", confidence=0.99),
+        semra.Input(prefix="ncit", source="pyobo", confidence=0.99),
+        # semra.Input(prefix="umls", source="pyobo", confidence=0.99),
     ],
     add_labels=False,
     priority=PRIORITY,
@@ -43,6 +51,8 @@ SEMRA_CONFIG = semra.Configuration(
         semra.Mutation(source="uberon", confidence=0.8),
         semra.Mutation(source="bto", confidence=0.65),
         semra.Mutation(source="caro", confidence=0.8),
+        semra.Mutation(source="ncit", confidence=0.7),
+        # semra.Mutation(source="umls", confidence=0.7),
     ],
     raw_pickle_path=HERE.joinpath("mappings_raw.pkl.gz"),
     processed_pickle_path=HERE.joinpath("mappings_processed.pkl.gz"),
