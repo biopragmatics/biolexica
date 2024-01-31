@@ -1,7 +1,7 @@
 """A FastAPI wrapper for Gilda."""
 
 import pathlib
-from typing import Union, List
+from typing import List, Union
 
 import fastapi
 import gilda
