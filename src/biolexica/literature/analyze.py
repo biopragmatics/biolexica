@@ -1,13 +1,13 @@
 """Tools for analyzing the results of annotation."""
 
-from collections import Counter
-from operator import attrgetter
-from typing import List
 import typing as t
-
+from collections import Counter
 from itertools import combinations
-from .annotate import AnnotatedArticle
+from typing import List
+
 from curies import Reference
+
+from .annotate import AnnotatedArticle
 
 __all__ = [
     "count_references",

@@ -66,12 +66,7 @@ def annotate_abstracts_from_search(
     limit: Optional[int] = None,
     **kwargs,
 ) -> List[AnnotatedArticle]:
-    """Get articles based on the query and do NER annotation using the given Gilda grounder.
-
-    Returns a pair of dataframes. The first contains articles recovered by the query with
-    columns ``pubmed``, ``title``, and ``abstract``. The second contains the NER annotations
-    with columns ``pubmed``, ``text``, ``curie``, ``name``, ``start``, and ``end``.
-    """
+    """Get articles based on the query and do NER annotation using the given Gilda grounder."""
     pubmed_ids = query_pubmed(pubmed_query, **kwargs)
     if limit is not None:
         pubmed_ids = pubmed_ids[:limit]
@@ -79,7 +74,7 @@ def annotate_abstracts_from_search(
 
 
 def annotate_abstracts_from_pubmeds(
-    pubmed_ids: List[Union[str, int]],
+    pubmed_ids: t.Collection[Union[str, int]],
     grounder: gilda.Grounder,
     *,
     use_indra_db: bool = True,
