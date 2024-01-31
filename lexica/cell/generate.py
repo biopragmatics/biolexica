@@ -9,7 +9,7 @@ TERMS_PATH = HERE.joinpath("terms.tsv.gz")
 
 PRIORITY = ["mesh", "efo", "cellosaurus", "ccle", "depmap", "bto", "cl", "clo"]
 BIOLEXICA_CONFIG = [
-    biolexica.Input(source="mesh", processor="pyobo", ancestors=["mesh:D002477"]),  # cells
+    biolexica.Input(source="mesh", processor="pyobo", ancestors=["mesh:D002477"]),  # cells (A11)
     biolexica.Input(source="efo", processor="pyobo", ancestors=["efo:0000324"]),
     biolexica.Input(source="cellosaurus", processor="pyobo"),
     # biolexica.Input(source="ccle", processor="pyobo"),

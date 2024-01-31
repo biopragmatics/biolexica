@@ -20,9 +20,15 @@ BIOLEXICA_CONFIG = [
     biolexica.Input(source="mondo", processor="pyobo"),
     biolexica.Input(source="hp", processor="pyobo"),
     biolexica.Input(source="symp", processor="pyobo"),
-    # TODO get subsets of MeSH (C for diseases, F for Psychiatry/Psychology,
-    #  and maybe others. See https://meshb.nlm.nih.gov/treeView)
-    biolexica.Input(source="mesh", processor="pyobo"),
+    biolexica.Input(
+        source="mesh",
+        processor="pyobo",
+        ancestors=[
+            *biolexica.get_mesh_category_curies("C"),
+            *biolexica.get_mesh_category_curies("F"),
+            # TODO should there be others?
+        ],
+    ),
     biolexica.Input(source="efo", processor="pyobo"),  # TODO find subset of EFO
     # biolexica.Input(source="umls", processor="pyobo"), # TODO find subset of UMLS
     # biolexica.Input(source="ncit", processor="pyobo"), # TODO find subset of NCIT

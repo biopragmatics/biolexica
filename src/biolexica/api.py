@@ -199,8 +199,10 @@ def _get_bioontologies_subset_terms(
             )
 
 
-def get_mesh_category_curies(letter) -> List[str]:
+def get_mesh_category_curies(letter, skip=None) -> List[str]:
     """Get the MeSH LUIDs for a category, by letter (e.g., "A")."""
+    # see https://meshb.nlm.nih.gov/treeView
+
     import bioversions
     from pyobo.sources.mesh import get_tree_to_mesh_id
 
@@ -211,6 +213,8 @@ def get_mesh_category_curies(letter) -> List[str]:
     rv = []
     for i in range(1, 100):
         key = f"{letter}{i:02}"
+        if skip and key in skip:
+            continue
         mesh_id = tree_to_mesh.get(key)
         if mesh_id is None:
             break

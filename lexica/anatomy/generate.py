@@ -18,7 +18,10 @@ PRIORITY = [
 BIOLEXICA_CONFIG = [
     biolexica.Input(source="uberon", processor="pyobo"),
     biolexica.Input(
-        source="mesh", ancestors=biolexica.get_mesh_category_curies("A"), processor="pyobo"
+        source="mesh",
+        # skip A11 since it's cells
+        ancestors=biolexica.get_mesh_category_curies("A", skip=["A11"]),
+        processor="pyobo",
     ),
     biolexica.Input(
         source="ncit",
