@@ -19,7 +19,6 @@ if TYPE_CHECKING:
     import semra
 
 __all__ = [
-    "TermsInput",
     "Input",
     "assemble_terms",
     "iter_terms_by_prefix",
@@ -42,12 +41,6 @@ class Input(BaseModel):
     ancestors: Union[None, str, List[str]] = None
 
 
-class TermsInput(BaseModel):
-    """An input towards lexicon assembly."""
-
-    terms: List[gilda.Term]
-
-
 def load_grounder(grounder: GrounderHint) -> gilda.Grounder:
     """Load a gilda grounder, potentially from a remote location."""
     if isinstance(grounder, str) and grounder.startswith("http"):
@@ -61,7 +54,7 @@ def load_grounder(grounder: GrounderHint) -> gilda.Grounder:
 
 
 def assemble_grounder(
-    inputs: List[Union[Input, TermsInput]],
+    inputs: List[Union[Input, List[gilda.Term]]],
     mappings: Optional[List["semra.Mapping"]] = None,
     *,
     include_biosynonyms: bool = True,
@@ -75,7 +68,7 @@ def assemble_grounder(
 
 
 def assemble_terms(
-    inputs: List[Union[Input, TermsInput]],
+    inputs: List[Union[Input, List[gilda.Term]]],
     mappings: Optional[List["semra.Mapping"]] = None,
     *,
     include_biosynonyms: bool = True,
@@ -85,8 +78,8 @@ def assemble_terms(
     """Assemble terms from multiple resources."""
     terms: List[gilda.Term] = []
     for inp in inputs:
-        if isinstance(inp, TermsInput):
-            terms.extend(inp.terms)
+        if isinstance(inp, list):
+            terms.extend(inp)
         elif inp.processor in {"pyobo", "bioontologies"}:
             terms.extend(
                 iter_terms_by_prefix(inp.source, ancestors=inp.ancestors, processor=inp.processor)

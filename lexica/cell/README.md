@@ -11,6 +11,13 @@ This directory contains a coherent, merged lexical index for the following resou
 7. Cell Ontology (CL)
 8. Cell Line Ontology (CLO)
 
+## Generating the Lexical Index
+
+The index can be regenerated with:
+
+```shell
+python generate.py
+```
 
 ## Using in Python
 
