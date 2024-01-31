@@ -10,7 +10,7 @@
 
 <p align="center">
     <a href="https://github.com/biopragmatics/biolexica/actions/workflows/tests.yml">
-        <img alt="Tests" src="https://github.com/biopragmatics/biolexica/workflows/Tests/badge.svg" /></a>
+        <img alt="Tests" src="https://github.com/biopragmatics/biolexica/actions/workflows/tests.yml/badge.svg" /></a>
     <a href="https://pypi.org/project/biolexica">
         <img alt="PyPI" src="https://img.shields.io/pypi/v/biolexica" /></a>
     <a href="https://pypi.org/project/biolexica">
