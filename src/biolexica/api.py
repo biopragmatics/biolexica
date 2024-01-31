@@ -23,6 +23,7 @@ __all__ = [
     "assemble_terms",
     "iter_terms_by_prefix",
     "load_grounder",
+    "get_mesh_category_curies",
 ]
 
 logger = logging.getLogger(__name__)
@@ -196,3 +197,22 @@ def _get_bioontologies_subset_terms(
                 status="synonym",
                 source=source,
             )
+
+
+def get_mesh_category_curies(letter) -> List[str]:
+    """Get the MeSH LUIDs for a category, by letter (e.g., "A")."""
+    from pyobo.sources.mesh import get_tree_to_mesh_id
+    import bioversions
+
+    mesh_version = bioversions.get_version("mesh")
+    if mesh_version is None:
+        raise ValueError
+    tree_to_mesh = get_tree_to_mesh_id(mesh_version)
+    rv = []
+    for i in range(1, 100):
+        key = f"{letter}{i:02}"
+        mesh_id = tree_to_mesh.get(key)
+        if mesh_id is None:
+            break
+        rv.append(f"mesh:{mesh_id}")
+    return rv
