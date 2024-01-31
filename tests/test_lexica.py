@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 
 import biolexica
+from biolexica.api import PREDEFINED
 
 HERE = Path(__file__).parent.resolve()
 ROOT = HERE.parent
@@ -22,6 +23,10 @@ class TestLexica(unittest.TestCase):
         cls.cell_grounder = biolexica.load_grounder(CELL_TERMS)
         # cls.anatomy_grounder = biolexica.load_grounder(ANATOMY_TERMS)
         # cls.phenotype_grounder = biolexica.load_grounder(PHENOTYPE_TERMS)
+
+    def test_predefined_list(self):
+        """Check the predefined list is right."""
+        self.assertEqual(set(PREDEFINED), {d.name for d in LEXICA.iterdir() if d.is_dir()})
 
     def test_ground_cells(self):
         """Test grounding cells."""
