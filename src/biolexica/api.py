@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     import semra
 
 __all__ = [
+    "Configuration",
     "Input",
     "assemble_terms",
     "iter_terms_by_prefix",
@@ -40,6 +41,13 @@ class Input(BaseModel):
     processor: Processor
     source: str
     ancestors: Union[None, str, List[str]] = None
+
+
+class Configuration(BaseModel):
+    inputs: List[Input]
+    excludes: Optional[List[str]] = None
+    raw_path: Optional[Path] = None
+    processed_path: Optional[Path] = None
 
 
 PREDEFINED = ["cell", "anatomy", "phenotype"]
@@ -65,33 +73,40 @@ def load_grounder(grounder: GrounderHint) -> gilda.Grounder:
 
 
 def assemble_grounder(
-    inputs: List[Union[Input, List[gilda.Term]]],
+    configuration: Configuration,
     mappings: Optional[List["semra.Mapping"]] = None,
     *,
+    extra_terms: Optional[List["gilda.Term"]] = None,
     include_biosynonyms: bool = True,
 ) -> gilda.Grounder:
     """Assemble terms from multiple resources and load into a grounder."""
     terms = assemble_terms(
-        inputs=inputs, mappings=mappings, include_biosynonyms=include_biosynonyms
+        configuration=configuration,
+        mappings=mappings,
+        include_biosynonyms=include_biosynonyms,
+        extra_terms=extra_terms,
     )
     grounder = gilda.Grounder(list(terms))
     return grounder
 
 
+def _term_curie(term: gilda.Term) -> str:
+    return f"{term.db}:{term.id}"
+
+
 def assemble_terms(
-    inputs: List[Union[Input, List[gilda.Term]]],
+    configuration: Configuration,
     mappings: Optional[List["semra.Mapping"]] = None,
     *,
+    extra_terms: Optional[List["gilda.Term"]] = None,
     include_biosynonyms: bool = True,
     raw_path: Optional[Path] = None,
     processed_path: Optional[Path] = None,
 ) -> List[gilda.Term]:
     """Assemble terms from multiple resources."""
     terms: List[gilda.Term] = []
-    for inp in inputs:
-        if isinstance(inp, list):
-            terms.extend(inp)
-        elif inp.processor in {"pyobo", "bioontologies"}:
+    for inp in configuration.inputs:
+        if inp.processor in {"pyobo", "bioontologies"}:
             terms.extend(
                 iter_terms_by_prefix(inp.source, ancestors=inp.ancestors, processor=inp.processor)
             )
@@ -101,6 +116,9 @@ def assemble_terms(
             terms.extend(load_entries_from_terms_file(inp.source))
         else:
             raise ValueError(f"Unknown processor {inp.processor}")
+
+    if extra_terms:
+        terms.extend(extra_terms)
 
     if include_biosynonyms:
         terms.extend(biosynonyms.get_gilda_terms())
@@ -113,6 +131,10 @@ def assemble_terms(
         from semra.gilda_utils import update_terms
 
         terms = update_terms(terms, mappings)
+
+    if configuration.excludes:
+        _excludes_set = set(configuration.excludes)
+        terms = [term for term in terms if _term_curie(term) not in _excludes_set]
 
     if processed_path is not None:
         logger.info("Writing %d processed terms to %s", len(terms), processed_path)

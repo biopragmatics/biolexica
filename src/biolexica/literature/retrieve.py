@@ -26,7 +26,7 @@ def get_pubmed_dataframe(
         except (ValueError, ImportError):
             logger.warning(
                 "Could not to access INDRA DB, relying on PubMed API. "
-                "Warning: this is intractably slow and also is missing full text."
+                "Warning: this could be intractably slow depending on the query, and also is missing full text."
             )
     return _from_api(pubmed_ids)
 

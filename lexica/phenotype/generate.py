@@ -15,24 +15,27 @@ PRIORITY = [
     "mesh",
     "efo",
 ]
-BIOLEXICA_CONFIG = [
-    biolexica.Input(source="doid", processor="pyobo"),
-    biolexica.Input(source="mondo", processor="pyobo"),
-    biolexica.Input(source="hp", processor="pyobo"),
-    biolexica.Input(source="symp", processor="pyobo"),
-    biolexica.Input(
-        source="mesh",
-        processor="pyobo",
-        ancestors=[
-            *biolexica.get_mesh_category_curies("C"),
-            *biolexica.get_mesh_category_curies("F"),
-            # TODO should there be others?
-        ],
-    ),
-    biolexica.Input(source="efo", processor="pyobo"),  # TODO find subset of EFO
-    # biolexica.Input(source="umls", processor="pyobo"), # TODO find subset of UMLS
-    # biolexica.Input(source="ncit", processor="pyobo"), # TODO find subset of NCIT
-]
+BIOLEXICA_CONFIG = biolexica.Configuration(
+    inputs=[
+        biolexica.Input(source="doid", processor="pyobo"),
+        biolexica.Input(source="mondo", processor="pyobo"),
+        biolexica.Input(source="hp", processor="pyobo"),
+        biolexica.Input(source="symp", processor="pyobo"),
+        biolexica.Input(
+            source="mesh",
+            processor="pyobo",
+            ancestors=[
+                *biolexica.get_mesh_category_curies("C"),
+                *biolexica.get_mesh_category_curies("F"),
+                # TODO should there be others?
+            ],
+        ),
+        biolexica.Input(source="efo", processor="pyobo"),  # TODO find subset of EFO
+        # biolexica.Input(source="umls", processor="pyobo"), # TODO find subset of UMLS
+        # biolexica.Input(source="ncit", processor="pyobo"), # TODO find subset of NCIT
+    ],
+    exclude=["doid:4"],
+)
 
 SEMRA_CONFIG = semra.Configuration(
     name="Cell and Cell Line Mappings",
@@ -68,7 +71,7 @@ SEMRA_CONFIG = semra.Configuration(
 def _main() -> None:
     mappings = SEMRA_CONFIG.get_mappings()
     biolexica.assemble_terms(
-        inputs=BIOLEXICA_CONFIG,
+        BIOLEXICA_CONFIG,
         mappings=mappings,
         processed_path=TERMS_PATH,
     )
