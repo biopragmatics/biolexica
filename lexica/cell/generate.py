@@ -12,7 +12,7 @@ BIOLEXICA_CONFIG = [
     biolexica.Input(source="mesh", processor="pyobo", ancestors=["mesh:D002477"]),  # cells
     biolexica.Input(source="efo", processor="pyobo", ancestors=["efo:0000324"]),
     biolexica.Input(source="cellosaurus", processor="pyobo"),
-    # Input(source="ccle", processor="pyobo"),
+    # biolexica.Input(source="ccle", processor="pyobo"),
     biolexica.Input(source="bto", processor="pyobo"),
     biolexica.Input(source="cl", processor="pyobo"),
     biolexica.Input(source="clo", processor="pyobo"),
