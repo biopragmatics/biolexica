@@ -1,7 +1,7 @@
 """A FastAPI wrapper for Gilda."""
 
 import pathlib
-from typing import Union
+from typing import Union, List
 
 import fastapi
 import gilda
@@ -47,7 +47,7 @@ def _get_grounder(request: Request) -> gilda.Grounder:
     return request.app.state
 
 
-def _ground(request: Request, text: str) -> list[Match]:
+def _ground(request: Request, text: str) -> List[Match]:
     return [
         Match(
             reference=Reference(prefix=scored_match.term.db, identifier=scored_match.term.id),
@@ -65,7 +65,7 @@ def summarize(request: Request):
     return {"number_terms": len(grounder.entries)}
 
 
-@api_router.get("/ground/{text}", response_model=list[Match])
+@api_router.get("/ground/{text}", response_model=List[Match])
 def ground(
     request: Request, text: str = fastapi.Path(..., description="Text to be grounded.")  # noqa:B008
 ):

@@ -49,6 +49,7 @@ def assemble_grounder(
     *,
     include_biosynonyms: bool = True,
 ) -> gilda.Grounder:
+    """Assemble terms from multiple resources and load into a grounder."""
     terms = assemble_terms(
         inputs=inputs, mappings=mappings, include_biosynonyms=include_biosynonyms
     )
@@ -63,9 +64,9 @@ def assemble_terms(
     include_biosynonyms: bool = True,
     raw_path: Optional[Path] = None,
     processed_path: Optional[Path] = None,
-) -> list[gilda.Term]:
+) -> List[gilda.Term]:
     """Assemble terms from multiple resources."""
-    terms: list[gilda.Term] = []
+    terms: List[gilda.Term] = []
     for inp in inputs:
         if isinstance(inp, TermsInput):
             terms.extend(inp.terms)
@@ -135,7 +136,7 @@ def _get_pyobo_subset_terms(source: str, ancestors: Union[str, List[str]]) -> It
             yield term
 
 
-def _ensure_list(s: Union[str, List[str]]) -> list[str]:
+def _ensure_list(s: Union[str, List[str]]) -> List[str]:
     if isinstance(s, str):
         return [s]
     return s
