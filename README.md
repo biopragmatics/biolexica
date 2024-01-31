@@ -32,16 +32,17 @@
 `biolexica` helps generate and apply coherent biomedical lexica. It takes care of the following:
 
 1. Getting names and synonyms from a diverse set of inputs (ontologies, databases, custom)
-   using `pyobo`, `bioontologies`, `biosynonyms`, and more.
+   using [`pyobo`](https://github.com/pyobo/pyobo), [`bioontologies`](https://github.com/biopragmatics/bioontologies), 
+   [`biosynonyms`](https://github.com/biopragmatics/biosynonyms), and more.
 2. Merging equivalent terms to best take advantage of different synonyms for the same term from different sources
-   using `semra`.
-3. Generating lexical index and doing NER using `gilda`
+   using [`semra`](https://github.com/biopragmatics/semra).
+3. Generating lexical index and doing NER using [Gilda](https://github.com/gyorilab/gilda)
 
 Importantly, we pre-define lexica for several entity types that can be readily used with Gilda in
 the [`lexica/`](lexica/) folder including:
 
-1. Cells and cell lines
-2. Diseased, conditions, and other phenotypes
+1. [Cells and cell lines](lexica/cell)
+2. [Diseased, conditions, and other phenotypes](lexica/phenotype)
 
 ## 🚀 Installation
 
@@ -76,15 +77,6 @@ The code in this package is licensed under the MIT License.
 ### 📖 Citation
 
 Citation goes here!
--->
-
-<!--
-### 🎁 Support
-
-This project has been supported by the following organizations (in alphabetical order):
-
-- [Harvard Program in Therapeutic Science - Laboratory of Systems Pharmacology](https://hits.harvard.edu/the-program/laboratory-of-systems-pharmacology/)
-
 -->
 
 <!--
