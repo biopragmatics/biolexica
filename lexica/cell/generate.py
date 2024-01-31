@@ -7,12 +7,12 @@ import biolexica
 HERE = Path(__file__).parent.resolve()
 TERMS_PATH = HERE.joinpath("terms.tsv.gz")
 
-PRIORITY = ["mesh", "efo", "cellosaurus", "ccle", "depmap", "bto", "cl", "clo"]
+PRIORITY = ["cl", "cellosaurus", "bto", "clo", "efo", "mesh", "ccle", "depmap"]
 BIOLEXICA_CONFIG = [
     biolexica.Input(source="mesh", processor="pyobo", ancestors=["mesh:D002477"]),  # cells (A11)
     biolexica.Input(source="efo", processor="pyobo", ancestors=["efo:0000324"]),
     biolexica.Input(source="cellosaurus", processor="pyobo"),
-    # biolexica.Input(source="ccle", processor="pyobo"),
+    biolexica.Input(source="ccle", processor="pyobo"),
     biolexica.Input(source="bto", processor="pyobo"),
     biolexica.Input(source="cl", processor="pyobo"),
     biolexica.Input(source="clo", processor="pyobo"),
