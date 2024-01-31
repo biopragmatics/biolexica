@@ -28,7 +28,7 @@ INDEX = "anatomy"
 URL = f"https://github.com/biopragmatics/biolexica/raw/main/lexica/{INDEX}/terms.tsv.gz"
 
 grounder: gilda.Grounder = biolexica.load_grounder(URL)
-scored_matches = grounder.ground("HeLA")
+scored_matches = grounder.ground("brain")
 ```
 
 ## Running an API

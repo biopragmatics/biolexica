@@ -1,7 +1,8 @@
 """Test loading and applying lexica."""
 
-from pathlib import Path
 import unittest
+from pathlib import Path
+
 import biolexica
 
 HERE = Path(__file__).parent.resolve()

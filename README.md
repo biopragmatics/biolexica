@@ -43,7 +43,7 @@ the [`lexica/`](lexica/) folder including:
 
 1. [Cells and cell lines](lexica/cell)
 2. [Diseases, conditions, and other phenotypes](lexica/phenotype)
-3. [Anatomical terms, tissues, organ systemsm, etc.](lexica/anatomy)
+3. [Anatomical terms, tissues, organ systems, etc.](lexica/anatomy)
 
 ## 🚀 Installation
 
