@@ -42,14 +42,24 @@ class Input(BaseModel):
     ancestors: Union[None, str, List[str]] = None
 
 
+PREDEFINED = ["cell", "anatomy", "phenotype"]
+URL_FMT = "https://github.com/biopragmatics/biolexica/raw/main/lexica/{key}/terms.tsv.gz"
+
+
 def load_grounder(grounder: GrounderHint) -> gilda.Grounder:
     """Load a gilda grounder, potentially from a remote location."""
-    if isinstance(grounder, str) and grounder.startswith("http"):
-        with tempfile.TemporaryDirectory() as directory:
-            path = Path(directory).joinpath("terms.tsv.gz")
-            urlretrieve(grounder, path)  # noqa:S310
-            return gilda.Grounder(path)
+    if isinstance(grounder, str):
+        if grounder in PREDEFINED:
+            grounder = URL_FMT.format(key=grounder)
+        if grounder.startswith("http"):
+            with tempfile.TemporaryDirectory() as directory:
+                path = Path(directory).joinpath("terms.tsv.gz")
+                urlretrieve(grounder, path)  # noqa:S310
+                return gilda.Grounder(path)
     if isinstance(grounder, (str, Path)):
+        path = Path(grounder).resolve()
+        if not path.is_file():
+            raise FileNotFoundError(path)
         return gilda.Grounder(grounder)
     return grounder
 
