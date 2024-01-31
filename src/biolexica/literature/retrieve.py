@@ -99,6 +99,7 @@ def _ensure_db(db=None):
 
 
 def clean_df(df: pd.DataFrame) -> pd.DataFrame:
+    """Clean the literature dataframe by remove missing titles/abstracts and questionable whitespace."""
     df = df[df.title.notna()].copy()
     df["title"] = df["title"].map(lambda s: s.replace("\n", " ").replace("\t", " "))
     df = df[df.abstract.notna()]
