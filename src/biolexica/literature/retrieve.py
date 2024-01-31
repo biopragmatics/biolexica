@@ -23,7 +23,7 @@ def get_pubmed_dataframe(
     if use_indra_db:
         try:
             return _from_indra_db(pubmed_ids, db=db)
-        except ValueError:
+        except (ValueError, ImportError):
             logger.warning(
                 "Could not to access INDRA DB, relying on PubMed API. "
                 "Warning: this is intractably slow and also is missing full text."
