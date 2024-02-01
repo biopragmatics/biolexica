@@ -49,3 +49,10 @@ class TestLexica(unittest.TestCase):
                 for ref, _name in result.count_references()
             )
         )
+        self.assertFalse(
+            any(
+                ref.curie == "doid:4"  # this is the DOID term for disease, should be filtered out
+                for result in results
+                for ref, _name in result.count_references()
+            )
+        )
