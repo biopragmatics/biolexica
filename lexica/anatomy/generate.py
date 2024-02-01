@@ -15,24 +15,26 @@ PRIORITY = [
     "ncit",
     # "umls", # TODO find appropriate subset
 ]
-BIOLEXICA_CONFIG = [
-    biolexica.Input(source="uberon", processor="pyobo"),
-    biolexica.Input(
-        source="mesh",
-        # skip A11 since it's cells
-        ancestors=biolexica.get_mesh_category_curies("A", skip=["A11"]),
-        processor="pyobo",
-    ),
-    biolexica.Input(
-        source="ncit",
-        ancestors=[
-            "NCIT:C12219",  # Anatomic Structure, System, or Substance
-        ],
-        processor="pyobo",
-    ),
-    biolexica.Input(source="bto", processor="pyobo"),
-    biolexica.Input(source="caro", processor="pyobo"),
-]
+BIOLEXICA_CONFIG = biolexica.Configuration(
+    inputs=[
+        biolexica.Input(source="uberon", processor="pyobo"),
+        biolexica.Input(
+            source="mesh",
+            # skip A11 since it's cells
+            ancestors=biolexica.get_mesh_category_curies("A", skip=["A11"]),
+            processor="pyobo",
+        ),
+        biolexica.Input(
+            source="ncit",
+            ancestors=[
+                "NCIT:C12219",  # Anatomic Structure, System, or Substance
+            ],
+            processor="pyobo",
+        ),
+        biolexica.Input(source="bto", processor="pyobo"),
+        biolexica.Input(source="caro", processor="pyobo"),
+    ]
+)
 
 SEMRA_CONFIG = semra.Configuration(
     name="Anatomy mappings",
@@ -66,7 +68,7 @@ SEMRA_CONFIG = semra.Configuration(
 def _main() -> None:
     mappings = SEMRA_CONFIG.get_mappings()
     biolexica.assemble_terms(
-        inputs=BIOLEXICA_CONFIG,
+        BIOLEXICA_CONFIG,
         mappings=mappings,
         processed_path=TERMS_PATH,
     )
