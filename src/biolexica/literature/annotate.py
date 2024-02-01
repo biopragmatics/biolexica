@@ -64,13 +64,16 @@ def annotate_abstracts_from_search(
     *,
     use_indra_db: bool = True,
     limit: Optional[int] = None,
+    show_progress: bool = True,
     **kwargs,
 ) -> List[AnnotatedArticle]:
     """Get articles based on the query and do NER annotation using the given Gilda grounder."""
     pubmed_ids = query_pubmed(pubmed_query, **kwargs)
     if limit is not None:
         pubmed_ids = pubmed_ids[:limit]
-    return annotate_abstracts_from_pubmeds(pubmed_ids, grounder=grounder, use_indra_db=use_indra_db)
+    return annotate_abstracts_from_pubmeds(
+        pubmed_ids, grounder=grounder, use_indra_db=use_indra_db, show_progress=show_progress
+    )
 
 
 def annotate_abstracts_from_pubmeds(
@@ -79,6 +82,7 @@ def annotate_abstracts_from_pubmeds(
     *,
     use_indra_db: bool = True,
     batch_size: int = 20_000,
+    show_progress: bool = True,
 ) -> List[AnnotatedArticle]:
     """Annotate the given articles using the given Gilda grounder."""
     n_pmids = len(pubmed_ids)
@@ -90,6 +94,7 @@ def annotate_abstracts_from_pubmeds(
         total=1 + n_pmids // batch_size,
         unit="batch",
         desc="Annotating articles",
+        disable=not show_progress,
     )
     for i, pubmed_batch in enumerate(outer_it, start=1):
         t = time.time()
@@ -107,6 +112,7 @@ def annotate_abstracts_from_pubmeds(
             unit="article",
             total=n_retrieved,
             leave=False,
+            disable=not show_progress,
         ):
             rv.append(
                 AnnotatedArticle(

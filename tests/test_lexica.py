@@ -5,7 +5,7 @@ from pathlib import Path
 
 import biolexica
 from biolexica.api import PREDEFINED
-from biolexica.literature import annotate_abstracts_from_search
+from biolexica.literature import annotate_abstracts_from_search, annotate_abstracts_from_pubmeds
 
 HERE = Path(__file__).parent.resolve()
 ROOT = HERE.parent
@@ -37,19 +37,12 @@ class TestLexica(unittest.TestCase):
         self.assertEqual("cellosaurus", res[0].term.db)
         self.assertEqual("0030", res[0].term.id)
 
-    def test_search_alz(self):
-        """Test searching and annotating Alzheimer's docs gets a desired annotation."""
-        results = annotate_abstracts_from_search(
-            "alzheimers", grounder=self.phenotype_grounder, limit=20
+    def test_exclude_doid_4(self):
+        """Test that exclusion during construction of the phenotype index works properly."""
+        pubmed_id = "38279949"
+        results = annotate_abstracts_from_pubmeds(
+            [pubmed_id], grounder=self.phenotype_grounder, show_progress=False
         )
-        self.assertTrue(
-            any(
-                ref.curie == "doid:10652"  # this is the DOID term for Alzheimer's disease
-                for result in results
-                for ref, _name in result.count_references()
-            )
-        )
-
         articles_with_doid_4 = {
             result.pubmed
             for result in results
@@ -61,4 +54,20 @@ class TestLexica(unittest.TestCase):
             articles_with_doid_4,
             msg="No articles should contain the reference `doid:4` for the top-level disease annotation, "
             "since this should be filtered out during construction of the lexical index.",
+        )
+
+    def test_search_alz(self):
+        """Test searching and annotating Alzheimer's docs gets a desired annotation."""
+        results = annotate_abstracts_from_search(
+            "alzheimers",
+            grounder=self.phenotype_grounder,
+            limit=20,
+            show_progress=False,
+        )
+        self.assertTrue(
+            any(
+                ref.curie == "doid:10652"  # this is the DOID term for Alzheimer's disease
+                for result in results
+                for ref, _name in result.count_references()
+            )
         )
