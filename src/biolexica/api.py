@@ -44,6 +44,8 @@ class Input(BaseModel):
 
 
 class Configuration(BaseModel):
+    """A configuration for construction of a lexicon."""
+
     inputs: List[Input]
     excludes: Optional[List[str]] = None
     raw_path: Optional[Path] = None

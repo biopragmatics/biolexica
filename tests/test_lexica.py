@@ -49,10 +49,16 @@ class TestLexica(unittest.TestCase):
                 for ref, _name in result.count_references()
             )
         )
-        self.assertFalse(
-            any(
-                ref.curie == "doid:4"  # this is the DOID term for disease, should be filtered out
-                for result in results
-                for ref, _name in result.count_references()
-            )
+
+        articles_with_doid_4 = {
+            result.pubmed
+            for result in results
+            for ref, _name in result.count_references()
+            if ref.curie == "doid:4"
+        }
+        self.assertEqual(
+            set(),
+            articles_with_doid_4,
+            msg="No articles should contain the reference `doid:4` for the top-level disease annotation, "
+            "since this should be filtered out during construction of the lexical index.",
         )
