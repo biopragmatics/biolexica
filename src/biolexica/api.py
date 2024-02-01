@@ -12,7 +12,7 @@ import gilda
 import pyobo
 from gilda.grounder import load_entries_from_terms_file
 from gilda.process import normalize
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from tqdm.auto import tqdm
 
 if TYPE_CHECKING:
@@ -47,9 +47,9 @@ class Configuration(BaseModel):
     """A configuration for construction of a lexicon."""
 
     inputs: List[Input]
-    excludes: Optional[List[str]] = None
-    raw_path: Optional[Path] = None
-    processed_path: Optional[Path] = None
+    excludes: Optional[List[str]] = Field(
+        default=None, description="A list of CURIEs to exclude after processing is complete"
+    )
 
 
 PREDEFINED = ["cell", "anatomy", "phenotype"]

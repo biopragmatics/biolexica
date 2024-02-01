@@ -5,7 +5,7 @@ from pathlib import Path
 
 import biolexica
 from biolexica.api import PREDEFINED
-from biolexica.literature import annotate_abstracts_from_search, annotate_abstracts_from_pubmeds
+from biolexica.literature import annotate_abstracts_from_pubmeds, annotate_abstracts_from_search
 
 HERE = Path(__file__).parent.resolve()
 ROOT = HERE.parent

@@ -34,7 +34,7 @@ BIOLEXICA_CONFIG = biolexica.Configuration(
         # biolexica.Input(source="umls", processor="pyobo"), # TODO find subset of UMLS
         # biolexica.Input(source="ncit", processor="pyobo"), # TODO find subset of NCIT
     ],
-    exclude=["doid:4"],
+    excludes=["doid:4"],
 )
 
 SEMRA_CONFIG = semra.Configuration(
