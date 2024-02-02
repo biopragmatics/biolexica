@@ -30,9 +30,9 @@ BIOLEXICA_CONFIG = biolexica.Configuration(
                 # TODO should there be others?
             ],
         ),
-        biolexica.Input(source="efo", processor="pyobo"),  # TODO find subset of EFO
+        biolexica.Input(source="efo", processor="pyobo", ancestors=["EFO:0000408"]),
+        biolexica.Input(source="ncit", processor="pyobo", ancestors=["ncit:C2991"]),
         # biolexica.Input(source="umls", processor="pyobo"), # TODO find subset of UMLS
-        # biolexica.Input(source="ncit", processor="pyobo"), # TODO find subset of NCIT
     ],
     excludes=["doid:4"],
 )
