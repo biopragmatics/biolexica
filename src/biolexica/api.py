@@ -10,6 +10,7 @@ import bioregistry
 import biosynonyms
 import gilda
 import pyobo
+from curies import Reference
 from gilda.grounder import load_entries_from_terms_file
 from gilda.process import normalize
 from pydantic import BaseModel, Field
@@ -30,6 +31,7 @@ __all__ = [
 logger = logging.getLogger(__name__)
 
 HERE = Path(__file__).parent.resolve()
+LEXICA = HERE.parent.parent.joinpath("lexica")
 Processor = Literal["pyobo", "bioontologies", "biosynonyms", "gilda"]
 
 GrounderHint = Union[gilda.Grounder, str, Path]
@@ -56,22 +58,88 @@ PREDEFINED = ["cell", "anatomy", "phenotype"]
 URL_FMT = "https://github.com/biopragmatics/biolexica/raw/main/lexica/{key}/terms.tsv.gz"
 
 
-def load_grounder(grounder: GrounderHint) -> gilda.Grounder:
+class Match(BaseModel):
+    """Model a scored match from Gilda."""
+
+    reference: Reference
+    name: str
+    score: float
+
+    @property
+    def curie(self) -> str:
+        """Get the reference's curie."""
+        return self.reference.curie
+
+    @classmethod
+    def from_gilda(cls, scored_match: gilda.ScoredMatch):
+        """Construct a match from a Gilda object."""
+        return cls(
+            reference=Reference(prefix=scored_match.term.db, identifier=scored_match.term.id),
+            name=scored_match.term.entry_name,
+            score=scored_match.score,
+        )
+
+
+class Grounder(gilda.Grounder):
+    """Wrap a Gilda grounder with additional functionality."""
+
+    def get_matches(
+        self,
+        s: str,
+        context: Optional[str] = None,
+        organisms: Optional[List[str]] = None,
+        namespaces: Optional[List[str]] = None,
+    ) -> List[Match]:
+        """Get matches in Biolexica's format."""
+        return [
+            Match.from_gilda(scored_match)
+            for scored_match in super().ground(
+                s, context=context, organisms=organisms, namespaces=namespaces
+            )
+        ]
+
+    def get_best_match(
+        self,
+        s: str,
+        context: Optional[str] = None,
+        organisms: Optional[List[str]] = None,
+        namespaces: Optional[List[str]] = None,
+    ) -> Optional[Match]:
+        """Get the best match in Biolexica's format."""
+        scored_matches = super().ground(
+            s, context=context, organisms=organisms, namespaces=namespaces
+        )
+        if not scored_matches:
+            return None
+        return Match.from_gilda(scored_matches[0])
+
+
+def load_grounder(grounder: GrounderHint) -> Grounder:
     """Load a gilda grounder, potentially from a remote location."""
     if isinstance(grounder, str):
         if grounder in PREDEFINED:
-            grounder = URL_FMT.format(key=grounder)
+            if LEXICA.is_dir():
+                # If biolexica is installed in editable mode, try looking for
+                # the directory outside the package root and load the predefined
+                # index directly
+                grounder = LEXICA.joinpath(grounder, "terms.tsv.gz").as_posix()
+            else:
+                grounder = URL_FMT.format(key=grounder)
         if grounder.startswith("http"):
             with tempfile.TemporaryDirectory() as directory:
                 path = Path(directory).joinpath("terms.tsv.gz")
                 urlretrieve(grounder, path)  # noqa:S310
-                return gilda.Grounder(path)
+                return Grounder(path)
     if isinstance(grounder, (str, Path)):
         path = Path(grounder).resolve()
         if not path.is_file():
             raise FileNotFoundError(path)
-        return gilda.Grounder(grounder)
-    return grounder
+        return Grounder(grounder)
+    if isinstance(grounder, Grounder):
+        return grounder
+    if isinstance(grounder, gilda.Grounder):
+        return Grounder(grounder.entries)
+    raise TypeError
 
 
 def assemble_grounder(
@@ -80,7 +148,7 @@ def assemble_grounder(
     *,
     extra_terms: Optional[List["gilda.Term"]] = None,
     include_biosynonyms: bool = True,
-) -> gilda.Grounder:
+) -> Grounder:
     """Assemble terms from multiple resources and load into a grounder."""
     terms = assemble_terms(
         configuration=configuration,
@@ -88,7 +156,7 @@ def assemble_grounder(
         include_biosynonyms=include_biosynonyms,
         extra_terms=extra_terms,
     )
-    grounder = gilda.Grounder(list(terms))
+    grounder = Grounder(list(terms))
     return grounder
 
 
