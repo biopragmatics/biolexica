@@ -3,7 +3,7 @@
 import logging
 import tempfile
 from pathlib import Path
-from typing import TYPE_CHECKING, Iterable, List, Literal, Optional, Union
+from typing import TYPE_CHECKING, Any, Iterable, List, Literal, Optional, Union
 from urllib.request import urlretrieve
 
 import bioregistry
@@ -26,6 +26,8 @@ __all__ = [
     "iter_terms_by_prefix",
     "load_grounder",
     "get_mesh_category_curies",
+    "Annotation",
+    "Match",
 ]
 
 logger = logging.getLogger(__name__)
@@ -80,6 +82,30 @@ class Match(BaseModel):
         )
 
 
+class Annotation(BaseModel):
+    """Data about an annotation."""
+
+    text: str
+    start: int
+    end: int
+    match: Match
+
+    @property
+    def reference(self) -> Reference:
+        """Get the match's reference."""
+        return self.match.reference
+
+    @property
+    def name(self) -> str:
+        """Get the match's entry name."""
+        return self.match.name
+
+    @property
+    def substr(self) -> str:
+        """Get the substring that was matched."""
+        return self.text[self.start : self.end]
+
+
 class Grounder(gilda.Grounder):
     """Wrap a Gilda grounder with additional functionality."""
 
@@ -112,6 +138,15 @@ class Grounder(gilda.Grounder):
         if not scored_matches:
             return None
         return Match.from_gilda(scored_matches[0])
+
+    def annotate(self, text: str, **kwargs: Any) -> List[Annotation]:
+        """Annotate the text."""
+        import gilda.ner
+
+        return [
+            Annotation(text=text, match=Match.from_gilda(match), start=start, end=end)
+            for text, match, start, end in gilda.ner.annotate(text, grounder=self, **kwargs)
+        ]
 
 
 def load_grounder(grounder: GrounderHint) -> Grounder:
