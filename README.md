@@ -45,16 +45,40 @@ the [`lexica/`](lexica/) folder including:
 2. [Diseases, conditions, and other phenotypes](lexica/phenotype)
 3. [Anatomical terms, tissues, organ systems, etc.](lexica/anatomy)
 
+## Getting Started
+
+Load a pre-defined grounder like this:
+
+```python
+import biolexica
+
+grounder = biolexica.load_grounder("phenotype")
+>>> grounder.get_best_match("Alzheimer's disease")
+Match(reference=Reference(prefix='doid', identifier='10652'), name="Alzheimer's disease", score=0.7777777777777778)
+```
+
+Note: Biolexica constructs extended version of `gilda.Grounder` that has convenience functions and a more
+simple match data model encoded with Pydantic.
+
+Search PubMed for abstracts and annotate them using a given grounder with:
+
+```python
+import biolexica
+from biolexica.literature import annotate_abstracts_from_search
+
+grounder = biolexica.load_grounder("phenotype")
+pubmed_query = "alzheimer's disease"
+annotations = annotate_abstracts_from_search(pubmed_query, grounder=grounder, limit=30)
+```
+
 ## 🚀 Installation
 
-<!-- Uncomment this section after your first ``tox -e finish``
 The most recent release can be installed from
 [PyPI](https://pypi.org/project/biolexica/) with:
 
 ```shell
 pip install biolexica
 ```
--->
 
 The most recent code and data can be installed directly from GitHub with:
 
