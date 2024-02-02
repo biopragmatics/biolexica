@@ -5,7 +5,7 @@ from typing import List
 import fastapi
 from fastapi import FastAPI, Request
 
-from biolexica.api import GrounderHint, load_grounder, Match, Grounder
+from biolexica.api import Grounder, GrounderHint, Match, load_grounder
 
 __all__ = [
     "run_app",
