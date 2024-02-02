@@ -3,13 +3,12 @@
 import logging
 import tempfile
 from pathlib import Path
-from typing import TYPE_CHECKING, Iterable, List, Literal, Optional, Union
+from typing import TYPE_CHECKING, Any, Iterable, List, Literal, Optional, Union
 from urllib.request import urlretrieve
 
 import bioregistry
 import biosynonyms
 import gilda
-import gilda.ner
 import pyobo
 from curies import Reference
 from gilda.grounder import load_entries_from_terms_file
@@ -140,8 +139,10 @@ class Grounder(gilda.Grounder):
             return None
         return Match.from_gilda(scored_matches[0])
 
-    def annotate(self, text: str, **kwargs) -> List[Annotation]:
+    def annotate(self, text: str, **kwargs: Any) -> List[Annotation]:
         """Annotate the text."""
+        import gilda.ner
+
         return [
             Annotation(text=text, match=Match.from_gilda(match), start=start, end=end)
             for text, match, start, end in gilda.ner.annotate(text, grounder=self, **kwargs)
