@@ -10,7 +10,6 @@ from curies import Reference
 from .annotate import AnnotatedArticle
 from ..api import GrounderHint, load_grounder
 
-
 __all__ = [
     "count_references",
     "count_cooccurrences",
@@ -43,12 +42,43 @@ def count_cooccurrences(
 def analyze_pretokens(
     text: str, *, grounder: GrounderHint, min_length: int = 1, max_length: int = 4
 ) -> t.Counter[str]:
-    """Take a histogram over tokens appearing before matches to identify more detailed terms for curation."""
+    """Take a histogram over tokens appearing before matches to identify more detailed terms for curation.
+
+    :param text: The text to analyze
+    :param grounder: The grounder
+    :param min_length: The minimum number of pre-tokens to keep a histogram
+    :param max_length: The maximum number of pre-tokens to keep a histogram
+    :returns: A counter of pre-tokens in the given length range
+
+    Here's an example where we look at recent literature about dementia and try and
+    identify if there are:
+
+    1. synonyms that could be curated in one of the upstream first-party lexical resources
+       or third-party lexical resources like Biosynonyms
+    2. terms that can be added to upstream ontologies, databases, etc.
+
+    .. code-block:: python
+
+        from collections import Counter
+        from tabulate import tabulate
+        import biolexica
+        from biolexica.literature import get_article_dataframe_from_search
+        from biolexica.literature.analyze import analyze_pretokens
+
+        grounder = biolexica.load_grounder("phenotype")
+        df = get_article_dataframe_from_search("dementia")
+        counter = Counter()
+        for abstract in df["abstract"]:
+            counter.update(analyze_pretokens(abstract, grounder=grounder))
+
+        table = tabulate(counter.most_common(), headers=["phrase", "count"], tablefmt="github")
+        print(table)
+    """
     from gilda.ner import stop_words
 
     grounder = load_grounder(grounder)
     text = text.replace("\n", " ").replace("  ", " ")
-    rv = Counter()
+    rv: t.Counter[str] = Counter()
     for annotation in grounder.annotate(text):
         parts = text[: annotation.start].split()
         for i in range(min_length, max_length + 1):
