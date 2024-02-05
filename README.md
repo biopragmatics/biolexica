@@ -55,9 +55,10 @@ import biolexica
 grounder = biolexica.load_grounder("phenotype")
 
 >>> grounder.get_best_match("Alzheimer's disease")
-Match(reference=Reference(prefix='doid', identifier='10652'), name="Alzheimer's disease", score=0.7777777777777778)
+Match(reference=Reference(prefix='doid', identifier='10652'), name="Alzheimer's disease", score=0.7778)
 
->>> grounder.annotate("""Clinical trials for reducing beta amyloid levels in Alzheimer's disease have been controversial.""")
+>>> grounder.annotate("Clinical trials for reducing Aβ levels in Alzheimer's disease have been controversial.")
+[Annotation(text="Alzheimer's disease", start=42, end=61, match=Match(reference=Reference(prefix='doid', identifier='10652'), name="Alzheimer's disease", score=0.7339))]
 ```
 
 Note: Biolexica constructs extended version of `gilda.Grounder` that has convenience functions and a more

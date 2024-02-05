@@ -28,6 +28,8 @@ __all__ = [
     "get_mesh_category_curies",
     "Annotation",
     "Match",
+    "Grounder",
+    "GrounderHint",
 ]
 
 logger = logging.getLogger(__name__)
@@ -78,7 +80,7 @@ class Match(BaseModel):
         return cls(
             reference=Reference(prefix=scored_match.term.db, identifier=scored_match.term.id),
             name=scored_match.term.entry_name,
-            score=scored_match.score,
+            score=round(scored_match.score, 4),
         )
 
 
@@ -99,6 +101,16 @@ class Annotation(BaseModel):
     def name(self) -> str:
         """Get the match's entry name."""
         return self.match.name
+
+    @property
+    def curie(self) -> str:
+        """Get the match's CURIE."""
+        return self.match.curie
+
+    @property
+    def score(self) -> float:
+        """Get the match's score."""
+        return self.match.score
 
     @property
     def substr(self) -> str:

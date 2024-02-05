@@ -11,9 +11,14 @@ from tqdm.contrib.logging import logging_redirect_tqdm
 
 __all__ = [
     "get_pubmed_dataframe",
+    "PUBMED_DATAFRAME_COLUMNS",
+    "clean_df",
 ]
 
 logger = logging.getLogger(__name__)
+
+
+PUBMED_DATAFRAME_COLUMNS = ["pubmed", "title", "abstract"]
 
 
 def get_pubmed_dataframe(
@@ -53,7 +58,7 @@ def _from_api(pmids: Iterable[Union[str, int]]) -> pd.DataFrame:
                 desc="Getting PubMed titles/abstracts",
             )
         ]
-    df = pd.DataFrame(rows, columns=["pubmed", "title", "abstract"]).set_index("pubmed")
+    df = pd.DataFrame(rows, columns=PUBMED_DATAFRAME_COLUMNS).set_index("pubmed")
     df = clean_df(df)
     return df
 
