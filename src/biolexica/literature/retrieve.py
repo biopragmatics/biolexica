@@ -81,11 +81,7 @@ def _iter_dataframes_from_pubmeds(
     for i, pubmed_batch in enumerate(outer_it, start=1):
         pubmed_batch = list(pubmed_batch)
         t = time.time()
-        df = _get_batch(
-            pubmed_batch,
-            use_indra_db=use_indra_db,
-            db=db,
-        )
+        df = _get_batch(pubmed_batch, use_indra_db=use_indra_db, db=db)
         n_retrieved = len(df.index)
         outer_it.write(
             f"[batch {i}] Got {n_retrieved:,} articles "
@@ -116,7 +112,8 @@ def _from_api(pmids: Iterable[Union[str, int]]) -> pd.DataFrame:
                 desc="Getting PubMed titles/abstracts",
             )
         ]
-    df = pd.DataFrame(rows, columns=PUBMED_DATAFRAME_COLUMNS).set_index("pubmed")
+    df = pd.DataFrame(rows, columns=PUBMED_DATAFRAME_COLUMNS)
+    df = df.set_index("pubmed")
     df = clean_df(df)
     return df
 

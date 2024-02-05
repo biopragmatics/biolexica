@@ -81,7 +81,7 @@ def annotate_abstracts_from_pubmeds(
         )
         for i, df in enumerate(df_iterator, start=1)
         for pubmed, title, abstract in tqdm(
-            df.values,
+            df.itertuples(),
             desc=f"Annotating batch {i}",
             unit_scale=True,
             unit="article",
