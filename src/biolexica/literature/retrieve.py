@@ -3,14 +3,16 @@
 from __future__ import annotations
 
 import logging
-from typing import Dict, Iterable, List, Union
+import time
+from typing import Dict, Iterable, List, Optional, Union
 
 import pandas as pd
+from more_itertools import batched
 from tqdm.asyncio import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 
 __all__ = [
-    "get_pubmed_dataframe",
+    "get_article_dataframe_from_pubmeds",
     "PUBMED_DATAFRAME_COLUMNS",
     "clean_df",
 ]
@@ -21,10 +23,27 @@ logger = logging.getLogger(__name__)
 PUBMED_DATAFRAME_COLUMNS = ["pubmed", "title", "abstract"]
 
 
-def get_pubmed_dataframe(
-    pubmed_ids: Iterable[Union[str, int]], *, use_indra_db: bool = True, db=None
+def get_article_dataframe_from_pubmeds(
+    pubmed_ids: Iterable[Union[str, int]],
+    *,
+    use_indra_db: bool = True,
+    db=None,
+    batch_size: Optional[int] = None,
+    show_progress: bool = True,
 ) -> pd.DataFrame:
     """Get a dataframe indexed by PubMed identifier (str) with title and abstract columns."""
+    return pd.concat(
+        _iter_dataframes_from_pubmeds(
+            pubmed_ids=pubmed_ids,
+            use_indra_db=use_indra_db,
+            db=db,
+            batch_size=batch_size,
+            show_progress=show_progress,
+        )
+    )
+
+
+def _get_batch(pubmed_ids: Iterable[Union[str, int]], *, use_indra_db: bool = True, db=None):
     if use_indra_db:
         try:
             return _from_indra_db(pubmed_ids, db=db)
@@ -34,6 +53,41 @@ def get_pubmed_dataframe(
                 "Warning: this could be intractably slow depending on the query, and also is missing full text."
             )
     return _from_api(pubmed_ids)
+
+
+def _iter_dataframes_from_pubmeds(
+    pubmed_ids: Iterable[Union[str, int]],
+    *,
+    use_indra_db: bool = True,
+    db=None,
+    batch_size: Optional[int] = None,
+    show_progress: bool = True,
+) -> Iterable[pd.DataFrame]:
+    """Query PubMed for article identifiers based on a given search and get a dataframe."""
+    if batch_size is None:
+        batch_size = 20_000
+
+    pubmed_ids = _clean_pubmeds(pubmed_ids)
+    if len(pubmed_ids) < batch_size:
+        # only a single batch, iterator not needed
+        show_progress = False
+    outer_it = tqdm(
+        batched(pubmed_ids, batch_size),
+        total=1 + len(pubmed_ids) // batch_size,
+        unit="batch",
+        desc="Getting articles",
+        disable=not show_progress,
+    )
+    for i, pubmed_batch in enumerate(outer_it, start=1):
+        pubmed_batch = list(pubmed_batch)
+        t = time.time()
+        df = _get_batch(pubmed_batch, use_indra_db=use_indra_db, db=db)
+        n_retrieved = len(df.index)
+        outer_it.write(
+            f"[batch {i}] Got {n_retrieved:,} articles "
+            f"({n_retrieved/len(pubmed_batch):.1%}) in {time.time() - t:.2f} seconds"
+        )
+        yield df
 
 
 def _clean_pubmeds(pubmeds: Iterable[Union[str, int]]) -> List[str]:
@@ -58,7 +112,8 @@ def _from_api(pmids: Iterable[Union[str, int]]) -> pd.DataFrame:
                 desc="Getting PubMed titles/abstracts",
             )
         ]
-    df = pd.DataFrame(rows, columns=PUBMED_DATAFRAME_COLUMNS).set_index("pubmed")
+    df = pd.DataFrame(rows, columns=PUBMED_DATAFRAME_COLUMNS)
+    df = df.set_index("pubmed")
     df = clean_df(df)
     return df
 

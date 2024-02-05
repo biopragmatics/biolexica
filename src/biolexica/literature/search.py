@@ -5,15 +5,46 @@ from __future__ import annotations
 import subprocess
 from typing import Any, List, Literal, Optional
 
+import pandas as pd
+
+from .retrieve import get_article_dataframe_from_pubmeds
+
 __all__ = [
+    "get_article_dataframe_from_search",
     "query_pubmed",
 ]
+
+Method = Literal["api", "esearch"]
+
+
+def get_article_dataframe_from_search(
+    search_term: str,
+    *,
+    method: Optional[Method] = None,
+    use_indra_db: bool = True,
+    db=None,
+    batch_size: Optional[int] = None,
+    show_progress: bool = True,
+    limit: Optional[int] = None,
+    **kwargs: Any,
+) -> pd.DataFrame:
+    """Query PubMed for article identifiers based on a given search and get a dataframe."""
+    pubmed_ids = query_pubmed(search_term, method=method, **kwargs)
+    if limit:
+        pubmed_ids = pubmed_ids[:limit]
+    return get_article_dataframe_from_pubmeds(
+        pubmed_ids,
+        use_indra_db=use_indra_db,
+        db=db,
+        batch_size=batch_size,
+        show_progress=show_progress,
+    )
 
 
 def query_pubmed(
     search_term: str,
     *,
-    method: Optional[Literal["api", "esearch"]] = None,
+    method: Optional[Method] = None,
     **kwargs: Any,
 ) -> List[str]:
     """Query PubMed for article identifiers based on a given search."""

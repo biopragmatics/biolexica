@@ -3,18 +3,16 @@
 from __future__ import annotations
 
 import logging
-import time
 import typing as t
 from collections import Counter
 from typing import List, Optional, Union
 
 from curies import Reference
-from more_itertools import batched
 from pydantic import BaseModel
 from tqdm.auto import tqdm
 
 from biolexica.api import Annotation, GrounderHint, load_grounder
-from biolexica.literature.retrieve import get_pubmed_dataframe
+from biolexica.literature.retrieve import _iter_dataframes_from_pubmeds
 from biolexica.literature.search import query_pubmed
 
 __all__ = [
@@ -63,48 +61,33 @@ def annotate_abstracts_from_pubmeds(
     grounder: GrounderHint,
     *,
     use_indra_db: bool = True,
-    batch_size: int = 20_000,
+    batch_size: Optional[int] = None,
     show_progress: bool = True,
 ) -> List[AnnotatedArticle]:
     """Annotate the given articles using the given Gilda grounder."""
-    n_pmids = len(pubmed_ids)
-
-    rv: List[AnnotatedArticle] = []
-
     grounder = load_grounder(grounder)
-
-    outer_it = tqdm(
-        batched(pubmed_ids, batch_size),
-        total=1 + n_pmids // batch_size,
-        unit="batch",
-        desc="Annotating articles",
-        disable=not show_progress,
+    df_iterator = _iter_dataframes_from_pubmeds(
+        pubmed_ids=pubmed_ids,
+        batch_size=batch_size,
+        use_indra_db=use_indra_db,
+        show_progress=show_progress,
     )
-    for i, pubmed_batch in enumerate(outer_it, start=1):
-        t = time.time()
-        pubmed_batch = list(pubmed_batch)
-        articles_df = get_pubmed_dataframe(pubmed_batch, use_indra_db=use_indra_db).reset_index()
-        n_retrieved = len(articles_df.index)
-        tqdm.write(
-            f"[batch {i}] Got {n_retrieved:,} articles "
-            f"({n_retrieved/len(pubmed_batch):.1%}) in {time.time() - t:.2f} seconds"
+    rv: List[AnnotatedArticle] = [
+        AnnotatedArticle(
+            pubmed=pubmed,
+            title=title,
+            abstract=abstract,
+            annotations=grounder.annotate(abstract),
         )
-        for pmid, title, abstract in tqdm(
-            articles_df.values,
+        for i, df in enumerate(df_iterator, start=1)
+        for pubmed, title, abstract in tqdm(
+            df.itertuples(),
             desc=f"Annotating batch {i}",
             unit_scale=True,
             unit="article",
-            total=n_retrieved,
+            total=len(df.index),
             leave=False,
             disable=not show_progress,
-        ):
-            rv.append(
-                AnnotatedArticle(
-                    pubmed=pmid,
-                    title=title,
-                    abstract=abstract,
-                    annotations=grounder.annotate(abstract),
-                )
-            )
-
+        )
+    ]
     return rv
