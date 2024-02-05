@@ -19,6 +19,17 @@ BIOLEXICA_CONFIG = biolexica.Configuration(
         biolexica.Input(source="bto", processor="pyobo"),
         biolexica.Input(source="cl", processor="pyobo"),
         biolexica.Input(source="clo", processor="pyobo"),
+        biolexica.Input(
+            source="ncit", processor="pyobo", ancestors=["ncit:C192998"]  # probably incomplete
+        ),
+        biolexica.Input(
+            source="umls",
+            processor="pyobo",
+            ancestors=[
+                "umls:C0007634",  # cell
+                "umls:C0007600",  # cell line
+            ],
+        ),
     ]
 )
 
@@ -35,6 +46,8 @@ SEMRA_CONFIG = semra.Configuration(
         semra.Input(prefix="cl", source="bioontologies", confidence=0.99),
         semra.Input(prefix="clo", source="custom", confidence=0.99),
         semra.Input(prefix="efo", source="pyobo", confidence=0.99),
+        semra.Input(prefix="ncit", source="pyobo", confidence=0.99),
+        semra.Input(prefix="umls", source="pyobo", confidence=0.99, extras={"version": "2023AB"}),
         semra.Input(
             prefix="depmap",
             source="pyobo",
@@ -60,6 +73,8 @@ SEMRA_CONFIG = semra.Configuration(
         semra.Mutation(source="depmap", confidence=0.7),
         semra.Mutation(source="ccle", confidence=0.7),
         semra.Mutation(source="cellosaurus", confidence=0.7),
+        semra.Mutation(source="ncit", confidence=0.7),
+        semra.Mutation(source="umls", confidence=0.7),
     ],
     raw_pickle_path=HERE.joinpath("mappings_raw.pkl.gz"),
     processed_pickle_path=HERE.joinpath("mappings_processed.pkl.gz"),
