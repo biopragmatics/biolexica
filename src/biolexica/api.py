@@ -3,7 +3,7 @@
 import logging
 import tempfile
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Iterable, List, Literal, Optional, Union
+from typing import TYPE_CHECKING, Any, Iterable, List, Literal, Optional, Union, Dict
 from urllib.request import urlretrieve
 
 import bioregistry
@@ -47,6 +47,7 @@ class Input(BaseModel):
     processor: Processor
     source: str
     ancestors: Union[None, str, List[str]] = None
+    kwargs: Optional[Dict[str, Any]] = None
 
 
 class Configuration(BaseModel):
@@ -225,7 +226,12 @@ def assemble_terms(
     for inp in configuration.inputs:
         if inp.processor in {"pyobo", "bioontologies"}:
             terms.extend(
-                iter_terms_by_prefix(inp.source, ancestors=inp.ancestors, processor=inp.processor)
+                iter_terms_by_prefix(
+                    inp.source,
+                    ancestors=inp.ancestors,
+                    processor=inp.processor,
+                    **(inp.kwargs or {}),
+                )
             )
         elif inp.processor == "biosynonyms":
             terms.extend(s.as_gilda_term() for s in biosynonyms.parse_synonyms(inp.source))
@@ -261,7 +267,7 @@ def assemble_terms(
 
 
 def iter_terms_by_prefix(
-    prefix: str, *, ancestors: Union[None, str, List[str]] = None, processor: Processor
+    prefix: str, *, ancestors: Union[None, str, List[str]] = None, processor: Processor, **kwargs
 ) -> Iterable[gilda.Term]:
     """Iterate over all terms from a given prefix."""
     if processor == "pyobo":
@@ -269,21 +275,23 @@ def iter_terms_by_prefix(
 
             import pyobo.gilda_utils
 
-            yield from pyobo.gilda_utils.get_gilda_terms(prefix)
+            yield from pyobo.gilda_utils.get_gilda_terms(prefix, **kwargs)
         else:
-            yield from _get_pyobo_subset_terms(prefix, ancestors)
+            yield from _get_pyobo_subset_terms(prefix, ancestors, **kwargs)
     elif processor == "bioontologies":
         if ancestors is None:
             import bioontologies.gilda_utils
 
-            yield from bioontologies.gilda_utils.get_gilda_terms(prefix)
+            yield from bioontologies.gilda_utils.get_gilda_terms(prefix, **kwargs)
         else:
-            yield from _get_bioontologies_subset_terms(prefix, ancestors)
+            yield from _get_bioontologies_subset_terms(prefix, ancestors, **kwargs)
     else:
         raise ValueError(f"Unknown processor: {processor}")
 
 
-def _get_pyobo_subset_terms(source: str, ancestors: Union[str, List[str]]) -> Iterable[gilda.Term]:
+def _get_pyobo_subset_terms(
+    source: str, ancestors: Union[str, List[str]], **kwargs
+) -> Iterable[gilda.Term]:
     from pyobo.gilda_utils import get_gilda_terms
 
     subset = {
@@ -291,7 +299,7 @@ def _get_pyobo_subset_terms(source: str, ancestors: Union[str, List[str]]) -> It
         for parent_curie in _ensure_list(ancestors)
         for descendant in pyobo.get_descendants(*parent_curie.split(":")) or []
     }
-    for term in get_gilda_terms(source):
+    for term in get_gilda_terms(source, **kwargs):
         if bioregistry.curie_to_str(term.db, term.id) in subset:
             yield term
 
@@ -303,12 +311,12 @@ def _ensure_list(s: Union[str, List[str]]) -> List[str]:
 
 
 def _get_bioontologies_subset_terms(
-    source: str, parent_curie: Union[str, List[str]]
+    source: str, parent_curie: Union[str, List[str]], check: bool = False, **kwargs
 ) -> Iterable[gilda.Term]:
     import bioontologies
     import networkx as nx
 
-    parse_results = bioontologies.get_obograph_by_prefix(source, check=False)
+    parse_results = bioontologies.get_obograph_by_prefix(source, check=check, **kwargs)
     obograph = parse_results.squeeze().standardize(prefix=source)
     graph = nx.DiGraph()
     for edge in obograph.edges:
