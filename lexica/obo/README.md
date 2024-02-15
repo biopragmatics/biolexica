@@ -3,6 +3,8 @@
 This contains all the terms from OBO Foundry ontologies
 (minus Protein Ontology, which is stubborn and won't download).
 
+The following script can be adapted to check new ontologies against existing terms:
+
 ```python
 import json
 import gilda
@@ -53,8 +55,8 @@ for graph in data['graphs']:
             print(f'  - [`{curie}`](https://bioregistry.io/{curie}) {res.term.entry_name} ({round(res.score, 3)})')
 
 print("\n## Lexical matching returned no results\n")
-for luid, lbl in safe:
-    print(f'- `CAROLIO:{luid}`', lbl)
+for identifier, name in safe:
+    print(f'- `{obo_prefix}:{identifier}`', name)
 ```
 
 Inspired by https://gist.github.com/cthoyt/d26df3ec12f6a15f3157546c6ebee3a2.
