@@ -41,7 +41,7 @@ Processor = Literal["pyobo", "bioontologies", "biosynonyms", "gilda"]
 GrounderHint = Union[gilda.Grounder, str, Path]
 
 
-class Input(BaseModel):
+class Input(BaseModel):  # type:ignore
     """An input towards lexicon assembly."""
 
     processor: Processor
