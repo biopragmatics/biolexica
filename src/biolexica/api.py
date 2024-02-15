@@ -59,7 +59,7 @@ class Configuration(BaseModel):
     )
 
 
-PREDEFINED = ["cell", "anatomy", "phenotype"]
+PREDEFINED = ["cell", "anatomy", "phenotype", "obo"]
 URL_FMT = "https://github.com/biopragmatics/biolexica/raw/main/lexica/{key}/terms.tsv.gz"
 
 
