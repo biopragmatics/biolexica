@@ -1,10 +1,12 @@
-import bioregistry
 from pathlib import Path
-from biolexica import iter_terms_by_prefix
-from tqdm import tqdm
-from tqdm.contrib.logging import logging_redirect_tqdm
+
+import bioregistry
 from gilda import dump_terms
 from gilda.grounder import load_entries_from_terms_file
+from tqdm import tqdm
+from tqdm.contrib.logging import logging_redirect_tqdm
+
+from biolexica import iter_terms_by_prefix
 
 HERE = Path(__file__).parent.resolve()
 TERMS_OUTPUT_PATH = HERE.joinpath("terms.tsv.gz")

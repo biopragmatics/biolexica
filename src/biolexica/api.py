@@ -3,7 +3,7 @@
 import logging
 import tempfile
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Iterable, List, Literal, Optional, Union, Dict
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Literal, Optional, Union
 from urllib.request import urlretrieve
 
 import bioregistry
