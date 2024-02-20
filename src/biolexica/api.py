@@ -3,7 +3,7 @@
 import logging
 import tempfile
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Iterable, List, Literal, Optional, Union, Dict
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Literal, Optional, Union
 from urllib.request import urlretrieve
 
 import bioregistry
@@ -41,7 +41,7 @@ Processor = Literal["pyobo", "bioontologies", "biosynonyms", "gilda"]
 GrounderHint = Union[gilda.Grounder, str, Path]
 
 
-class Input(BaseModel):
+class Input(BaseModel):  # type:ignore
     """An input towards lexicon assembly."""
 
     processor: Processor
@@ -59,7 +59,7 @@ class Configuration(BaseModel):
     )
 
 
-PREDEFINED = ["cell", "anatomy", "phenotype"]
+PREDEFINED = ["cell", "anatomy", "phenotype", "obo"]
 URL_FMT = "https://github.com/biopragmatics/biolexica/raw/main/lexica/{key}/terms.tsv.gz"
 
 
