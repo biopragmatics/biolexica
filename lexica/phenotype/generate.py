@@ -32,7 +32,7 @@ BIOLEXICA_CONFIG = biolexica.Configuration(
         ),
         biolexica.Input(source="efo", processor="pyobo", ancestors=["EFO:0000408"]),
         biolexica.Input(source="ncit", processor="pyobo", ancestors=["ncit:C2991"]),
-        # biolexica.Input(source="umls", processor="pyobo"), # TODO find subset of UMLS
+        biolexica.Input(source="umls", processor="pyobo", ancestors=["umls:C0012634"]),
     ],
     excludes=["doid:4"],
 )
@@ -51,6 +51,8 @@ SEMRA_CONFIG = semra.Configuration(
         semra.Input(prefix="symp", source="pyobo", confidence=0.99),
         semra.Input(prefix="mesh", source="pyobo", confidence=0.99),
         semra.Input(prefix="efo", source="pyobo", confidence=0.99),
+        semra.Input(prefix="umls", source="pyobo", confidence=0.99, extras={"version": "2023AB"}),
+        semra.Input(prefix="ncit", source="pyobo", confidence=0.99),
     ],
     add_labels=False,
     priority=PRIORITY,
@@ -61,6 +63,8 @@ SEMRA_CONFIG = semra.Configuration(
         semra.Mutation(source="mondo", confidence=0.7),
         semra.Mutation(source="hp", confidence=0.7),
         semra.Mutation(source="symp", confidence=0.7),
+        semra.Mutation(source="umls", confidence=0.7),
+        semra.Mutation(source="ncit", confidence=0.7),
     ],
     raw_pickle_path=HERE.joinpath("mappings_raw.pkl.gz"),
     processed_pickle_path=HERE.joinpath("mappings_processed.pkl.gz"),
