@@ -29,14 +29,16 @@ safe = []
 print("## Lexical matching returned results\n")
 for graph in data['graphs']:
     for node in sorted(graph['nodes'], key=lambda n: n['id']):
-        if node['type'] == "PROPERTY":
-            continue
         uri = node['id']
         if not uri.startswith(obo_uri_prefix):
             continue
 
+        # Skip nodes without a label
+        name = node.get('lbl')
+        if not name:
+            continue
+    
         identifier = uri[len(obo_uri_prefix) :]
-        name = node['lbl']
 
         results = []
         results.extend(grounder.ground(name))
