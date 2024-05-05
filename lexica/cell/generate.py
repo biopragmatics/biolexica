@@ -19,6 +19,7 @@ BIOLEXICA_CONFIG = biolexica.Configuration(
         biolexica.Input(source="bto", processor="pyobo"),
         biolexica.Input(source="cl", processor="pyobo"),
         biolexica.Input(source="clo", processor="pyobo"),
+        biolexica.Input(source="ncit", processor="pyobo", ancestors=['ncit:C12508']),
     ]
 )
 
