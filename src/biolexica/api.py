@@ -157,8 +157,8 @@ class Grounder(gilda.Grounder):
         import gilda.ner
 
         return [
-            Annotation(text=text, match=Match.from_gilda(match), start=start, end=end)
-            for text, match, start, end in gilda.ner.annotate(text, grounder=self, **kwargs)
+            Annotation(text=text, match=Match.from_gilda(matches[0]), start=start, end=end)
+            for text, matches, start, end in gilda.ner.annotate(text, grounder=self, **kwargs)
         ]
 
 
