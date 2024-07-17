@@ -157,8 +157,13 @@ class Grounder(gilda.Grounder):
         import gilda.ner
 
         return [
-            Annotation(text=text, match=Match.from_gilda(matches[0]), start=start, end=end)
-            for text, matches, start, end in gilda.ner.annotate(text, grounder=self, **kwargs)
+            Annotation(
+                text=annotation.text,
+                match=Match.from_gilda(annotation.matches[0]),
+                start=annotation.start,
+                end=annotation.end,
+            )
+            for annotation in gilda.ner.annotate(text, grounder=self, **kwargs)
         ]
 
 
@@ -272,7 +277,6 @@ def iter_terms_by_prefix(
     """Iterate over all terms from a given prefix."""
     if processor == "pyobo":
         if ancestors is None:
-
             import pyobo.gilda_utils
 
             yield from pyobo.gilda_utils.get_gilda_terms(prefix, **kwargs)
