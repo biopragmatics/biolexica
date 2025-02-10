@@ -50,6 +50,7 @@ class Configuration(BaseModel):
         default=None,
         description="A list of CURIEs to exclude after processing is complete",
     )
+    mapping_configuration: Optional[semra.Configuration] = None
 
 
 PREDEFINED: TypeAlias = Literal["cell", "anatomy", "phenotype", "obo"]
@@ -127,13 +128,19 @@ def assemble_terms(
         logger.info("Writing %d raw literal mappings to %s", len(terms), raw_path)
         ssslm.write_literal_mappings(terms, raw_path)
 
+    _mappings = []
+    if configuration.mapping_configuration:
+        _mappings.extend(configuration.mapping_configuration.get_mappings())
     if mappings is not None:
+        _mappings.extend(mappings)
+
+    if _mappings is not None:
         from semra.api import assert_projection
 
-        assert_projection(mappings)
+        assert_projection(_mappings)
         terms = ssslm.remap_literal_mappings(
             literal_mappings=terms,
-            mappings=[(mapping.s, mapping.o) for mapping in mappings],
+            mappings=[(mapping.s, mapping.o) for mapping in _mappings],
         )
 
     if configuration.excludes:

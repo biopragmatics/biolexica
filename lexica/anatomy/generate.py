@@ -38,27 +38,6 @@ PRIORITY = [
     "ncit",
     # "umls", # TODO find appropriate subset
 ]
-BIOLEXICA_CONFIG = biolexica.Configuration(
-    inputs=[
-        biolexica.Input(source="uberon", processor="pyobo"),
-        biolexica.Input(
-            source="mesh",
-            # skip A11 since it's cells
-            ancestors=get_mesh_category_curies("A", skip=["A11"]),
-            processor="pyobo",
-        ),
-        biolexica.Input(
-            source="ncit",
-            ancestors=[
-                "NCIT:C12219",  # Anatomic Structure, System, or Substance
-            ],
-            processor="pyobo",
-            kwargs=dict(version="2024-05-07"),
-        ),
-        biolexica.Input(source="bto", processor="pyobo"),
-        biolexica.Input(source="caro", processor="pyobo"),
-    ]
-)
 
 SEMRA_CONFIG = semra.Configuration(
     name="Anatomy mappings",
@@ -92,19 +71,38 @@ SEMRA_CONFIG = semra.Configuration(
     priority_pickle_path=HERE.joinpath("mappings_prioritized.pkl"),
 )
 
+BIOLEXICA_CONFIG = biolexica.Configuration(
+    inputs=[
+        biolexica.Input(source="uberon", processor="pyobo"),
+        biolexica.Input(
+            source="mesh",
+            # skip A11 since it's cells
+            ancestors=get_mesh_category_curies("A", skip=["A11"]),
+            processor="pyobo",
+        ),
+        biolexica.Input(
+            source="ncit",
+            ancestors=[
+                "NCIT:C12219",  # Anatomic Structure, System, or Substance
+            ],
+            processor="pyobo",
+            kwargs=dict(version="2024-05-07"),
+        ),
+        biolexica.Input(source="bto", processor="pyobo"),
+        biolexica.Input(source="caro", processor="pyobo"),
+    ],
+    mapping_configuration=SEMRA_CONFIG,
+)
+
 
 @click.command()
 @verbose_option
 def _main() -> None:
-    mappings = SEMRA_CONFIG.get_mappings()
     biolexica.assemble_terms(
         BIOLEXICA_CONFIG,
-        mappings=mappings,
         processed_path=LITERAL_MAPPINGS_PATH,
         gilda_path=GILDA_PATH,
     )
-    # TODO summarize?
-    click.echo()
 
 
 if __name__ == "__main__":
