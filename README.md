@@ -65,20 +65,6 @@ Match(reference=Reference(prefix='doid', identifier='10652'), name="Alzheimer's 
 [Annotation(text="Alzheimer's disease", start=42, end=61, match=Match(reference=Reference(prefix='doid', identifier='10652'), name="Alzheimer's disease", score=0.7339))]
 ```
 
-Note: Biolexica constructs extended version of `gilda.Grounder` that has
-convenience functions and a more simple match data model encoded with Pydantic.
-
-Search PubMed for abstracts and annotate them using a given grounder with:
-
-```python
-import biolexica
-from biolexica.literature import annotate_abstracts_from_search
-
-grounder = biolexica.load_grounder("phenotype")
-pubmed_query = "alzheimer's disease"
-annotations = annotate_abstracts_from_search(pubmed_query, grounder=grounder, limit=30)
-```
-
 ## 🚀 Installation
 
 The most recent release can be installed from
