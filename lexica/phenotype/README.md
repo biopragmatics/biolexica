@@ -1,6 +1,7 @@
 # Disease, Phenotype, and Condition Lexicon
 
-This directory contains a coherent, merged lexical index for the following resources:
+This directory contains a coherent, merged lexical index for the following
+resources:
 
 1. Human Disease Ontology (DOID)
 2. MONDO Disease Ontology (MONDO)

@@ -1,6 +1,7 @@
 # Cell and Cell Line Lexicon
 
-This directory contains a coherent, merged lexical index for the following resources:
+This directory contains a coherent, merged lexical index for the following
+resources:
 
 1. Medical Subject Headings (MeSH) (children of `mesh:D002477`)
 2. Experimental Factor Ontology (EFO) (children of `efo:0000324`)

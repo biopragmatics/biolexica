@@ -1,6 +1,7 @@
 # Anatomy, Tissues, and Organ Systems
 
-This directory contains a coherent, merged lexical index for the following resources:
+This directory contains a coherent, merged lexical index for the following
+resources:
 
 1. uberon
 2. mesh

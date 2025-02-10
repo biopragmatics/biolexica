@@ -47,7 +47,7 @@ def main():
     )
 
     literal_mappings: list[ssslm.LiteralMapping] = []
-    for prefix in tqdm(prefixes):
+    for prefix in tqdm(prefixes, unit="ontology", desc="Extracting OBO literal mappings"):
         path = CACHE.joinpath(prefix).with_suffix(".ssslm.tsv.gz")
         if path.is_file():
             literal_mappings.extend(ssslm.read_literal_mappings(path))
@@ -60,13 +60,7 @@ def main():
             literal_mappings.extend(local_literal_mappings)
 
     ssslm.write_literal_mappings(path=LITERAL_MAPPINGS_PATH, literal_mappings=literal_mappings)
-
-    try:
-        from gilda import dump_terms
-    except ImportError:
-        click.secho("could not import gilda", fg="red")
-    else:
-        dump_terms([t.to_gilda() for t in literal_mappings], GILDA_PATH)
+    ssslm.write_gilda_terms(literal_mappings, GILDA_PATH)
 
 
 if __name__ == "__main__":

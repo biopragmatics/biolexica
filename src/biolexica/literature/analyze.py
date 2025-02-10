@@ -48,13 +48,14 @@ def analyze_pretokens(
     :param grounder: The grounder
     :param min_length: The minimum number of pre-tokens to keep a histogram
     :param max_length: The maximum number of pre-tokens to keep a histogram
+
     :returns: A counter of pre-tokens in the given length range
 
-    Here's an example where we look at recent literature about dementia and try and
-    identify if there are:
+    Here's an example where we look at recent literature about dementia and try and identify if
+    there are:
 
-    1. synonyms that could be curated in one of the upstream first-party lexical resources
-       or third-party lexical resources like Biosynonyms
+    1. synonyms that could be curated in one of the upstream first-party lexical resources or
+       third-party lexical resources like Biosynonyms
     2. terms that can be added to upstream ontologies, databases, etc.
 
     .. code-block:: python
@@ -73,6 +74,7 @@ def analyze_pretokens(
 
         table = tabulate(counter.most_common(), headers=["phrase", "count"], tablefmt="github")
         print(table)
+
     """
     from gilda.ner import stop_words
 
