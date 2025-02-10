@@ -1,3 +1,21 @@
+# /// script
+# requires-python = ">=3.13"
+# dependencies = [
+#     "biolexica",
+#     "bioliterature",
+#     "indra",
+#     "ssslm[gilda-slim]",
+#     "tabulate",
+# ]
+#
+# [tool.uv.sources]
+# semra = { path = "../../semra", editable = true  }
+# biolexica = { path = "..", editable = true  }
+# pyobo = { path = "../../pyobo", editable = true }
+# ssslm = { path = "../../ssslm", editable = true }
+# bioontologies = { path = "../../bioontologies", editable = true }
+#
+# ///
 """Run search, retrival, annotation, and analysis with recent diabetes literature."""
 
 import click
