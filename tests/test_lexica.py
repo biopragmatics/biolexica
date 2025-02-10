@@ -1,5 +1,6 @@
 """Test loading and applying lexica."""
 
+import typing
 import unittest
 from pathlib import Path
 
@@ -26,7 +27,9 @@ class TestLexica(unittest.TestCase):
 
     def test_predefined_list(self):
         """Check the predefined list is right."""
-        self.assertEqual(set(PREDEFINED), {d.name for d in LEXICA.iterdir() if d.is_dir()})
+        self.assertEqual(
+            set(typing.get_args(PREDEFINED)), {d.name for d in LEXICA.iterdir() if d.is_dir()}
+        )
 
     def test_ground_cells(self):
         """Test grounding cells."""

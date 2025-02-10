@@ -1,8 +1,9 @@
 """API for assembling biomedial lexica."""
 
 import logging
+import typing as t
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Sequence, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Sequence, TypeAlias, Union
 
 import ssslm
 from curies import Reference
@@ -16,15 +17,20 @@ __all__ = [
     "Configuration",
     "Input",
     "assemble_terms",
-    "get_literal_mappings_by_prefix",
+    "get_literal_mappings",
     "load_grounder",
+    "Processor",
+    "PREDEFINED",
+    "assemble_grounder",
 ]
 
 logger = logging.getLogger(__name__)
 
 HERE = Path(__file__).parent.resolve()
 LEXICA = HERE.parent.parent.joinpath("lexica")
-Processor = Literal["pyobo", "bioontologies", "ssslm", "gilda"]
+
+#: A processor available as a literal mapping input
+Processor: TypeAlias = Literal["pyobo", "bioontologies", "ssslm", "gilda"]
 
 
 class Input(BaseModel):  # type:ignore
@@ -46,13 +52,13 @@ class Configuration(BaseModel):
     )
 
 
-PREDEFINED = ["cell", "anatomy", "phenotype", "obo"]
+PREDEFINED: TypeAlias = Literal["cell", "anatomy", "phenotype", "obo"]
 URL_FMT = "https://github.com/biopragmatics/biolexica/raw/main/lexica/{key}/{key}.ssslm.tsv.gz"
 
 
 def load_grounder(grounder: ssslm.GrounderHint) -> ssslm.Grounder:
     """Load a grounder, potentially from a remote location."""
-    if isinstance(grounder, str) and grounder in PREDEFINED:
+    if isinstance(grounder, str) and grounder in t.get_args(PREDEFINED):
         if LEXICA.is_dir():
             # If biolexica is installed in editable mode, try looking for
             # the directory outside the package root and load the predefined
@@ -95,7 +101,7 @@ def assemble_terms(
     for inp in configuration.inputs:
         if inp.processor in {"pyobo", "bioontologies"}:
             terms.extend(
-                get_literal_mappings_by_prefix(
+                get_literal_mappings(
                     inp.source,
                     ancestors=inp.ancestors,
                     processor=inp.processor,
@@ -144,12 +150,12 @@ def assemble_terms(
     return terms
 
 
-def get_literal_mappings_by_prefix(
+def get_literal_mappings(
     prefix: str,
     *,
     ancestors: Union[None, str, Sequence[str]] = None,
     processor: Processor,
-    **kwargs,
+    **kwargs: Any,
 ) -> list[ssslm.LiteralMapping]:
     """Iterate over all terms from a given prefix."""
     if ancestors is None:

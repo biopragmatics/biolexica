@@ -25,7 +25,7 @@ import ssslm
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 
-from biolexica import get_literal_mappings_by_prefix
+from biolexica import get_literal_mappings
 
 HERE = Path(__file__).parent.resolve()
 LITERAL_MAPPINGS_PATH = HERE.joinpath("obo.ssslm.tsv.gz")
@@ -52,9 +52,7 @@ def main():
         if path.is_file():
             literal_mappings.extend(ssslm.read_literal_mappings(path))
         else:
-            local_literal_mappings = list(
-                get_literal_mappings_by_prefix(prefix, processor="bioontologies")
-            )
+            local_literal_mappings = list(get_literal_mappings(prefix, processor="bioontologies"))
             with logging_redirect_tqdm():
                 ssslm.write_literal_mappings(path=path, literal_mappings=local_literal_mappings)
             literal_mappings.extend(local_literal_mappings)
