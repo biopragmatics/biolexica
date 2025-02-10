@@ -1,7 +1,12 @@
 # OBO Foundry Lexicon
 
-This contains all the terms from OBO Foundry ontologies
-(minus Protein Ontology, which is stubborn and won't download).
+This contains all the terms from OBO Foundry ontologies.
+
+It can be regenerated with:
+
+```console
+$ uv run --script generate.py
+```
 
 The following script can be adapted to check new ontologies against existing terms:
 

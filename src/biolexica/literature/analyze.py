@@ -5,10 +5,10 @@ from collections import Counter
 from itertools import combinations
 from typing import List
 
-from curies import Reference
+import ssslm
+from curies import NamableReference
 
 from .annotate import AnnotatedArticle
-from ..api import GrounderHint, load_grounder
 
 __all__ = [
     "count_references",
@@ -19,28 +19,28 @@ __all__ = [
 
 def count_references(
     annotated_articles: List[AnnotatedArticle],
-) -> t.Counter[t.Tuple[Reference, str]]:
+) -> t.Counter[NamableReference]:
     """Count the number of references in the annotated articles."""
     return Counter(
-        reference_name
+        reference
         for annotated_article in annotated_articles
-        for reference_name in annotated_article.count_references()
+        for reference in annotated_article.count_references()
     )
 
 
 def count_cooccurrences(
     annotated_articles: List[AnnotatedArticle],
-) -> t.Counter[t.Tuple[t.Tuple[Reference, str], t.Tuple[Reference, str]]]:
+) -> t.Counter[frozenset[NamableReference]]:
     """Count the co-occurrences of entities in the annotated articles."""
     return Counter(
-        tuple(sorted(pair, key=lambda p: p[0].curie))  # type:ignore
+        frozenset(pair)
         for annotated_article in annotated_articles
         for pair in combinations(annotated_article.count_references(), 2)
     )
 
 
 def analyze_pretokens(
-    text: str, *, grounder: GrounderHint, min_length: int = 1, max_length: int = 4
+    text: str, *, grounder: ssslm.GrounderHint, min_length: int = 1, max_length: int = 4
 ) -> t.Counter[str]:
     """Take a histogram over tokens appearing before matches to identify more detailed terms for curation.
 
@@ -76,7 +76,7 @@ def analyze_pretokens(
     """
     from gilda.ner import stop_words
 
-    grounder = load_grounder(grounder)
+    grounder = ssslm.make_grounder(grounder)
     text = text.replace("\n", " ").replace("  ", " ")
     rv: t.Counter[str] = Counter()
     for annotation in grounder.annotate(text):

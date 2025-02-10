@@ -1,11 +1,32 @@
+# /// script
+# requires-python = ">=3.12"
+# dependencies = [
+#     "biolexica",
+#     "pyobo",
+#     "bioontologies",
+#     "semra",
+#     "ssslm[gilda-slim]",
+# ]
+#
+# [tool.uv.sources]
+# semra = { path = "../../../semra", editable = true  }
+# biolexica = { path = "../..", editable = true  }
+# pyobo = { path = "../../../pyobo", editable = true }
+# ssslm = { path = "../../../ssslm", editable = true }
+# bioontologies = { path = "../../../bioontologies", editable = true }
+#
+# ///
+
 from pathlib import Path
 
 import semra
+from pyobo.sources.mesh import get_mesh_category_curies
 
 import biolexica
 
 HERE = Path(__file__).parent.resolve()
-TERMS_PATH = HERE.joinpath("terms.tsv.gz")
+LITERAL_MAPPINGS_PATH = HERE.joinpath("phenotype.ssslm.tsv.gz")
+GILDA_PATH = HERE.joinpath("terms.tsv.gz")
 
 PRIORITY = [
     "doid",
@@ -25,13 +46,18 @@ BIOLEXICA_CONFIG = biolexica.Configuration(
             source="mesh",
             processor="pyobo",
             ancestors=[
-                *biolexica.get_mesh_category_curies("C"),
-                *biolexica.get_mesh_category_curies("F"),
+                *get_mesh_category_curies("C"),
+                *get_mesh_category_curies("F"),
                 # TODO should there be others?
             ],
         ),
         biolexica.Input(source="efo", processor="pyobo", ancestors=["EFO:0000408"]),
-        biolexica.Input(source="ncit", processor="pyobo", ancestors=["ncit:C2991"]),
+        biolexica.Input(
+            source="ncit",
+            processor="pyobo",
+            ancestors=["ncit:C2991"],
+            kwargs=dict(version="2024-05-07"),
+        ),
         # biolexica.Input(source="umls", processor="pyobo"), # TODO find subset of UMLS
     ],
     excludes=["doid:4"],
@@ -73,7 +99,8 @@ def _main() -> None:
     biolexica.assemble_terms(
         BIOLEXICA_CONFIG,
         mappings=mappings,
-        processed_path=TERMS_PATH,
+        processed_path=LITERAL_MAPPINGS_PATH,
+        gilda_path=GILDA_PATH,
     )
 
 

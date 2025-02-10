@@ -2,7 +2,6 @@
 
 from .annotate import (
     AnnotatedArticle,
-    Annotation,
     annotate_abstracts_from_pubmeds,
     annotate_abstracts_from_search,
 )
@@ -14,7 +13,6 @@ __all__ = [
     "get_article_dataframe_from_pubmeds",
     "get_article_dataframe_from_search",
     "AnnotatedArticle",
-    "Annotation",
     "annotate_abstracts_from_pubmeds",
     "annotate_abstracts_from_search",
 ]

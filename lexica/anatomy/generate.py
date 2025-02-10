@@ -1,11 +1,34 @@
+# /// script
+# requires-python = ">=3.12"
+# dependencies = [
+#     "biolexica",
+#     "pyobo",
+#     "semra",
+#     "bioontologies",
+#     "ssslm[gilda-slim]",
+# ]
+#
+# [tool.uv.sources]
+# semra = { path = "../../../semra", editable = true  }
+# biolexica = { path = "../..", editable = true  }
+# pyobo = { path = "../../../pyobo", editable = true }
+# ssslm = { path = "../../../ssslm", editable = true }
+# bioontologies = { path = "../../../bioontologies", editable = true }
+#
+# ///
+
 from pathlib import Path
 
+import click
 import semra
+from more_click import verbose_option
+from pyobo.sources.mesh import get_mesh_category_curies
 
 import biolexica
 
 HERE = Path(__file__).parent.resolve()
-TERMS_PATH = HERE.joinpath("terms.tsv.gz")
+LITERAL_MAPPINGS_PATH = HERE.joinpath("anatomy.ssslm.tsv.gz")
+GILDA_PATH = HERE.joinpath("terms.tsv.gz")
 
 PRIORITY = [
     "uberon",
@@ -21,7 +44,7 @@ BIOLEXICA_CONFIG = biolexica.Configuration(
         biolexica.Input(
             source="mesh",
             # skip A11 since it's cells
-            ancestors=biolexica.get_mesh_category_curies("A", skip=["A11"]),
+            ancestors=get_mesh_category_curies("A", skip=["A11"]),
             processor="pyobo",
         ),
         biolexica.Input(
@@ -30,6 +53,7 @@ BIOLEXICA_CONFIG = biolexica.Configuration(
                 "NCIT:C12219",  # Anatomic Structure, System, or Substance
             ],
             processor="pyobo",
+            kwargs=dict(version="2024-05-07"),
         ),
         biolexica.Input(source="bto", processor="pyobo"),
         biolexica.Input(source="caro", processor="pyobo"),
@@ -45,7 +69,11 @@ SEMRA_CONFIG = semra.Configuration(
         semra.Input(prefix="bto", source="pyobo", confidence=0.99),
         semra.Input(prefix="caro", source="pyobo", confidence=0.99),
         semra.Input(prefix="mesh", source="pyobo", confidence=0.99),
-        semra.Input(prefix="ncit", source="pyobo", confidence=0.99),
+        semra.Input(
+            prefix="ncit",
+            source="pyobo",
+            confidence=0.99,
+        ),
         # semra.Input(prefix="umls", source="pyobo", confidence=0.99),
     ],
     add_labels=False,
@@ -65,13 +93,18 @@ SEMRA_CONFIG = semra.Configuration(
 )
 
 
+@click.command()
+@verbose_option
 def _main() -> None:
     mappings = SEMRA_CONFIG.get_mappings()
     biolexica.assemble_terms(
         BIOLEXICA_CONFIG,
         mappings=mappings,
-        processed_path=TERMS_PATH,
+        processed_path=LITERAL_MAPPINGS_PATH,
+        gilda_path=GILDA_PATH,
     )
+    # TODO summarize?
+    click.echo()
 
 
 if __name__ == "__main__":

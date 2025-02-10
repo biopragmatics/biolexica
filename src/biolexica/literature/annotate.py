@@ -7,13 +7,13 @@ import typing as t
 from collections import Counter
 from typing import List, Optional, Union
 
-from curies import Reference
+import ssslm
+from curies import NamableReference
 from pydantic import BaseModel
 from tqdm.auto import tqdm
 
-from biolexica.api import Annotation, GrounderHint, load_grounder
-from biolexica.literature.retrieve import _iter_dataframes_from_pubmeds
-from biolexica.literature.search import query_pubmed
+from .retrieve import _iter_dataframes_from_pubmeds
+from .search import query_pubmed
 
 __all__ = [
     "AnnotatedArticle",
@@ -31,16 +31,16 @@ class AnnotatedArticle(BaseModel):
     pubmed: str
     title: str
     abstract: str
-    annotations: List[Annotation]
+    annotations: List[ssslm.Annotation]
 
-    def count_references(self) -> t.Counter[t.Tuple[Reference, str]]:
+    def count_references(self) -> t.Counter[NamableReference]:
         """Count the references annotated in this article."""
-        return Counter((annotation.reference, annotation.name) for annotation in self.annotations)
+        return Counter(a.reference for a in self.annotations)
 
 
 def annotate_abstracts_from_search(
     pubmed_query: str,
-    grounder: GrounderHint,
+    grounder: ssslm.GrounderHint,
     *,
     use_indra_db: bool = True,
     limit: Optional[int] = None,
@@ -52,20 +52,23 @@ def annotate_abstracts_from_search(
     if limit is not None:
         pubmed_ids = pubmed_ids[:limit]
     return annotate_abstracts_from_pubmeds(
-        pubmed_ids, grounder=grounder, use_indra_db=use_indra_db, show_progress=show_progress
+        pubmed_ids,
+        grounder=grounder,
+        use_indra_db=use_indra_db,
+        show_progress=show_progress,
     )
 
 
 def annotate_abstracts_from_pubmeds(
     pubmed_ids: t.Collection[Union[str, int]],
-    grounder: GrounderHint,
+    grounder: ssslm.GrounderHint,
     *,
     use_indra_db: bool = True,
     batch_size: Optional[int] = None,
     show_progress: bool = True,
 ) -> List[AnnotatedArticle]:
     """Annotate the given articles using the given Gilda grounder."""
-    grounder = load_grounder(grounder)
+    grounder = ssslm.make_grounder(grounder)
     df_iterator = _iter_dataframes_from_pubmeds(
         pubmed_ids=pubmed_ids,
         batch_size=batch_size,

@@ -29,9 +29,18 @@ def _main():
         tabulate(
             [
                 (l_r.curie, l_n, r_r.curie, r_n, count)
-                for ((l_r, l_n), (r_r, r_n)), count in co_occurrence_counter.most_common(10)
+                for (
+                    (l_r, l_n),
+                    (r_r, r_n),
+                ), count in co_occurrence_counter.most_common(10)
             ],
-            headers=["Left Reference", "Left Name", "Right Reference", "Right Name", "Count"],
+            headers=[
+                "Left Reference",
+                "Left Name",
+                "Right Reference",
+                "Right Name",
+                "Count",
+            ],
             tablefmt="github",
         )
     )

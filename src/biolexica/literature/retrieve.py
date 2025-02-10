@@ -85,7 +85,7 @@ def _iter_dataframes_from_pubmeds(
         n_retrieved = len(df.index)
         outer_it.write(
             f"[batch {i}] Got {n_retrieved:,} articles "
-            f"({n_retrieved/len(pubmed_batch):.1%}) in {time.time() - t:.2f} seconds"
+            f"({n_retrieved / len(pubmed_batch):.1%}) in {time.time() - t:.2f} seconds"
         )
         yield df
 
