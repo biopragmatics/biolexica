@@ -44,8 +44,16 @@ BIOLEXICA_CONFIG = biolexica.Configuration(
         biolexica.Input(
             source="ncit",
             processor="pyobo",
-            ancestors=["ncit:C12508"],
+            ancestors=["ncit:C12508", "ncit:C192998"],  # FIXME check
             kwargs={"version": "2024-05-07"},
+        ),
+        biolexica.Input(
+            source="umls",
+            processor="pyobo",
+            ancestors=[
+                "umls:C0007634",  # cell
+                "umls:C0007600",  # cell line
+            ],
         ),
     ]
 )
@@ -75,6 +83,8 @@ SEMRA_CONFIG = semra.Configuration(
             confidence=0.99,
             extras={"version": "2019"},
         ),
+        semra.Input(prefix="ncit", source="pyobo", confidence=0.99),
+        semra.Input(prefix="umls", source="pyobo", confidence=0.99, extras={"version": "2023AB"}),
     ],
     add_labels=False,
     priority=PRIORITY,
@@ -88,6 +98,8 @@ SEMRA_CONFIG = semra.Configuration(
         semra.Mutation(source="depmap", confidence=0.7),
         semra.Mutation(source="ccle", confidence=0.7),
         semra.Mutation(source="cellosaurus", confidence=0.7),
+        semra.Mutation(source="ncit", confidence=0.7),
+        semra.Mutation(source="umls", confidence=0.7),
     ],
     raw_pickle_path=HERE.joinpath("mappings_raw.pkl.gz"),
     processed_pickle_path=HERE.joinpath("mappings_processed.pkl.gz"),
