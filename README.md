@@ -43,11 +43,13 @@ of the following:
 2. Merging equivalent terms to best take advantage of different synonyms for the
    same term from different sources using
    [`semra`](https://github.com/biopragmatics/semra).
-3. Generating lexical index and doing NER using
-   [Gilda](https://github.com/gyorilab/gilda)
+3. Generating lexical index and doing NER using a standard interface from
+   [SSSLM](https://github.com/cthoyt/ssslm)
 
 Importantly, we pre-define lexica for several entity types that can be readily
-used with Gilda in the [`lexica/`](lexica/) folder including:
+used with any NLP tools wrapped by SSSLM, such as
+[Gilda](https://github.com/gyorilab/gilda). They can be found in the
+[`lexica/`](lexica/) folder including:
 
 1. [Cells and cell lines](lexica/cell)
 2. [Diseases, conditions, and other phenotypes](lexica/phenotype)
