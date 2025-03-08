@@ -1,19 +1,7 @@
-# -*- coding: utf-8 -*-
-
-"""Command line interface for :mod:`biolexica`.
-
-Why does this file exist, and why not put this in ``__main__``? You might be tempted to import things from ``__main__``
-later, but that will cause problems--the code will get executed twice:
-
-- When you run ``python3 -m biolexica`` python will execute``__main__.py`` as a script.
-  That means there won't be any ``biolexica.__main__`` in ``sys.modules``.
-- When you import __main__ it will get executed again (as a module) because
-  there's no ``biolexica.__main__`` in ``sys.modules``.
-
-.. seealso:: https://click.palletsprojects.com/en/8.1.x/setuptools/#setuptools-integration
-"""
+"""Command line interface for :mod:`biolexica`."""
 
 import logging
+from pathlib import Path
 
 import click
 
@@ -26,8 +14,18 @@ logger = logging.getLogger(__name__)
 
 @click.group()
 @click.version_option()
-def main():
-    """CLI for biolexica."""
+@click.option("--configuration", type=Path)
+@click.option("--output", required=True, type=Path)
+def main(configuration: Path, output: Path) -> None:
+    """Assemble a lexicon based on a configuration file."""
+    import json
+
+    import biolexica
+
+    configuration_model = biolexica.Configuration.model_validate(
+        json.loads(configuration.read_text())
+    )
+    biolexica.assemble_terms(configuration_model, processed_path=output)
 
 
 if __name__ == "__main__":

@@ -1,19 +1,30 @@
 {
   "template": "https://github.com/cthoyt/cookiecutter-snekpack",
-  "commit": "5298d45d0ed6eb67a983d996ec8a492d67386cd0",
+  "commit": "bc56b27a6c12e229d9d01151847e4f5276bc5111",
   "checkout": null,
   "context": {
     "cookiecutter": {
       "package_name": "biolexica",
       "package_name_stylized": "Biolexica",
-      "short_description": "Generate and apply coherent biomedical lexica",
+      "short_description": "Generate and apply coherent biomedical lexical indices for NER and NEN",
       "author_name": "Charles Tapley Hoyt",
+      "author_github": "cthoyt",
       "author_email": "cthoyt@gmail.com",
       "github_organization_name": "biopragmatics",
       "github_repository_name": "biolexica",
       "command_line_interface": true,
       "gitlab": false,
-      "_template": "https://github.com/cthoyt/cookiecutter-snekpack"
+      "runner": "tox",
+      "__not_charlie": "",
+      "__runner": "tox -e",
+      "__runner_uv": "--with tox-uv tox -e",
+      "__runner_pip": "tox tox-uv",
+      "__runner_install_uv": "uv tool install tox --with tox-uv",
+      "__runner_install_pip": "python3 -m pip install tox tox-uv",
+      "__runner_tests": "py",
+      "__gh_slug": "biopragmatics/biolexica",
+      "_template": "https://github.com/cthoyt/cookiecutter-snekpack",
+      "_commit": "bc56b27a6c12e229d9d01151847e4f5276bc5111"
     }
   },
   "directory": null

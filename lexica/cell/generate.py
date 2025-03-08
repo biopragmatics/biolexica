@@ -1,3 +1,24 @@
+# /// script
+# requires-python = ">=3.12"
+# dependencies = [
+#     "biolexica",
+#     "pyobo",
+#     "semra",
+#     "bioontologies",
+#     "ssslm[gilda-slim]",
+# ]
+#
+# [tool.uv.sources]
+# semra = { path = "../../../semra", editable = true  }
+# biolexica = { path = "../..", editable = true  }
+# pyobo = { path = "../../../pyobo", editable = true }
+# ssslm = { path = "../../../ssslm", editable = true }
+# bioontologies = { path = "../../../bioontologies", editable = true }
+#
+# ///
+
+"""Generate a lexical index for cell resources."""
+
 from pathlib import Path
 
 import semra
@@ -5,7 +26,8 @@ import semra
 import biolexica
 
 HERE = Path(__file__).parent.resolve()
-TERMS_PATH = HERE.joinpath("terms.tsv.gz")
+LITERAL_MAPPINGS_PATH = HERE.joinpath("cell.ssslm.tsv.gz")
+GILDA_PATH = HERE.joinpath("terms.tsv.gz")
 
 PRIORITY = ["cl", "cellosaurus", "bto", "clo", "efo", "mesh", "ccle", "depmap"]
 BIOLEXICA_CONFIG = biolexica.Configuration(
@@ -20,15 +42,10 @@ BIOLEXICA_CONFIG = biolexica.Configuration(
         biolexica.Input(source="cl", processor="pyobo"),
         biolexica.Input(source="clo", processor="pyobo"),
         biolexica.Input(
-            source="ncit", processor="pyobo", ancestors=["ncit:C192998"]  # probably incomplete
-        ),
-        biolexica.Input(
-            source="umls",
+            source="ncit",
             processor="pyobo",
-            ancestors=[
-                "umls:C0007634",  # cell
-                "umls:C0007600",  # cell line
-            ],
+            ancestors=["ncit:C12508"],
+            kwargs={"version": "2024-05-07"},
         ),
     ]
 )
@@ -46,8 +63,6 @@ SEMRA_CONFIG = semra.Configuration(
         semra.Input(prefix="cl", source="bioontologies", confidence=0.99),
         semra.Input(prefix="clo", source="custom", confidence=0.99),
         semra.Input(prefix="efo", source="pyobo", confidence=0.99),
-        semra.Input(prefix="ncit", source="pyobo", confidence=0.99),
-        semra.Input(prefix="umls", source="pyobo", confidence=0.99, extras={"version": "2023AB"}),
         semra.Input(
             prefix="depmap",
             source="pyobo",
@@ -73,8 +88,6 @@ SEMRA_CONFIG = semra.Configuration(
         semra.Mutation(source="depmap", confidence=0.7),
         semra.Mutation(source="ccle", confidence=0.7),
         semra.Mutation(source="cellosaurus", confidence=0.7),
-        semra.Mutation(source="ncit", confidence=0.7),
-        semra.Mutation(source="umls", confidence=0.7),
     ],
     raw_pickle_path=HERE.joinpath("mappings_raw.pkl.gz"),
     processed_pickle_path=HERE.joinpath("mappings_processed.pkl.gz"),
@@ -83,11 +96,13 @@ SEMRA_CONFIG = semra.Configuration(
 
 
 def _main() -> None:
+    """Generate a lexical index for cell resources."""
     mappings = SEMRA_CONFIG.get_mappings()
     biolexica.assemble_terms(
         BIOLEXICA_CONFIG,
         mappings=mappings,
-        processed_path=TERMS_PATH,
+        processed_path=LITERAL_MAPPINGS_PATH,
+        gilda_path=GILDA_PATH,
     )
 
 

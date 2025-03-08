@@ -1,11 +1,36 @@
+# /// script
+# requires-python = ">=3.12"
+# dependencies = [
+#     "biolexica",
+#     "pyobo",
+#     "semra",
+#     "bioontologies",
+#     "ssslm[gilda-slim]",
+# ]
+#
+# [tool.uv.sources]
+# semra = { path = "../../../semra", editable = true  }
+# biolexica = { path = "../..", editable = true  }
+# pyobo = { path = "../../../pyobo", editable = true }
+# ssslm = { path = "../../../ssslm", editable = true }
+# bioontologies = { path = "../../../bioontologies", editable = true }
+#
+# ///
+
+"""Generate a lexical index for anatomy resources."""
+
 from pathlib import Path
 
+import click
 import semra
+from more_click import verbose_option
+from pyobo.sources.mesh import get_mesh_category_curies
 
 import biolexica
 
 HERE = Path(__file__).parent.resolve()
-TERMS_PATH = HERE.joinpath("terms.tsv.gz")
+LITERAL_MAPPINGS_PATH = HERE.joinpath("anatomy.ssslm.tsv.gz")
+GILDA_PATH = HERE.joinpath("terms.tsv.gz")
 
 PRIORITY = [
     "uberon",
@@ -15,27 +40,6 @@ PRIORITY = [
     "ncit",
     # "umls", # TODO find appropriate subset
 ]
-BIOLEXICA_CONFIG = biolexica.Configuration(
-    inputs=[
-        biolexica.Input(source="uberon", processor="pyobo"),
-        biolexica.Input(
-            source="mesh",
-            # skip A11 since it's cells
-            ancestors=biolexica.get_mesh_category_curies("A", skip=["A11"]),
-            processor="pyobo",
-        ),
-        biolexica.Input(
-            source="ncit",
-            ancestors=[
-                "NCIT:C12219",  # Anatomic Structure, System, or Substance
-            ],
-            processor="pyobo",
-        ),
-        biolexica.Input(source="bto", processor="pyobo"),
-        biolexica.Input(source="caro", processor="pyobo"),
-        biolexica.Input(source="umls", processor="pyobo", ancestors=["umls:C0700276", "umls:C1515976"]),
-    ]
-)
 
 SEMRA_CONFIG = semra.Configuration(
     name="Anatomy mappings",
@@ -46,8 +50,12 @@ SEMRA_CONFIG = semra.Configuration(
         semra.Input(prefix="bto", source="pyobo", confidence=0.99),
         semra.Input(prefix="caro", source="pyobo", confidence=0.99),
         semra.Input(prefix="mesh", source="pyobo", confidence=0.99),
-        semra.Input(prefix="ncit", source="pyobo", confidence=0.99),
-        semra.Input(prefix="umls", source="pyobo", confidence=0.99),
+        semra.Input(
+            prefix="ncit",
+            source="pyobo",
+            confidence=0.99,
+        ),
+        # semra.Input(prefix="umls", source="pyobo", confidence=0.99),
     ],
     add_labels=False,
     priority=PRIORITY,
@@ -58,20 +66,45 @@ SEMRA_CONFIG = semra.Configuration(
         semra.Mutation(source="bto", confidence=0.65),
         semra.Mutation(source="caro", confidence=0.8),
         semra.Mutation(source="ncit", confidence=0.7),
-        semra.Mutation(source="umls", confidence=0.7),
+        # semra.Mutation(source="umls", confidence=0.7),
     ],
     raw_pickle_path=HERE.joinpath("mappings_raw.pkl.gz"),
     processed_pickle_path=HERE.joinpath("mappings_processed.pkl.gz"),
     priority_pickle_path=HERE.joinpath("mappings_prioritized.pkl"),
 )
 
+BIOLEXICA_CONFIG = biolexica.Configuration(
+    inputs=[
+        biolexica.Input(source="uberon", processor="pyobo"),
+        biolexica.Input(
+            source="mesh",
+            # skip A11 since it's cells
+            ancestors=get_mesh_category_curies("A", skip=["A11"]),
+            processor="pyobo",
+        ),
+        biolexica.Input(
+            source="ncit",
+            ancestors=[
+                "NCIT:C12219",  # Anatomic Structure, System, or Substance
+            ],
+            processor="pyobo",
+            kwargs={"version": "2024-05-07"},
+        ),
+        biolexica.Input(source="bto", processor="pyobo"),
+        biolexica.Input(source="caro", processor="pyobo"),
+    ],
+    mapping_configuration=SEMRA_CONFIG,
+)
 
+
+@click.command()
+@verbose_option
 def _main() -> None:
-    mappings = SEMRA_CONFIG.get_mappings()
+    """Generate a lexical index for anatomy resources."""
     biolexica.assemble_terms(
         BIOLEXICA_CONFIG,
-        mappings=mappings,
-        processed_path=TERMS_PATH,
+        processed_path=LITERAL_MAPPINGS_PATH,
+        gilda_path=GILDA_PATH,
     )
 
 
