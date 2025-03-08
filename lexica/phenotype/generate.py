@@ -17,6 +17,8 @@
 #
 # ///
 
+"""Generate a lexical index for phenotype resources."""
+
 from pathlib import Path
 
 import semra
@@ -56,7 +58,7 @@ BIOLEXICA_CONFIG = biolexica.Configuration(
             source="ncit",
             processor="pyobo",
             ancestors=["ncit:C2991"],
-            kwargs=dict(version="2024-05-07"),
+            kwargs={"version": "2024-05-07"},
         ),
         # biolexica.Input(source="umls", processor="pyobo"), # TODO find subset of UMLS
     ],
@@ -95,6 +97,7 @@ SEMRA_CONFIG = semra.Configuration(
 
 
 def _main() -> None:
+    """Generate a lexical index for phenotype resources."""
     mappings = SEMRA_CONFIG.get_mappings()
     biolexica.assemble_terms(
         BIOLEXICA_CONFIG,

@@ -61,7 +61,7 @@ dependencies = [
     "semra",
     "ssslm>=0.0.10",
     "bioregistry",
-    "pyobo",
+    "pyobo @ git+https://github.com/biopragmatics/pyobo",
     "bioontologies>=0.6.0",
     "biosynonyms",
     "pandas",
@@ -190,6 +190,7 @@ ignore = [
 "docs/source/conf.py" = ["ERA001"]
 # Prints are okay in notebooks
 "notebooks/**/*.ipynb" = ["T201"]
+"lexica/**/*.py" = ["ERA001"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "pep257"

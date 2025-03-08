@@ -17,6 +17,8 @@
 #
 # ///
 
+"""Generate a lexical index for OBO Foundry ontologies."""
+
 from pathlib import Path
 
 import bioregistry
@@ -35,7 +37,8 @@ CACHE.mkdir(exist_ok=True, parents=True)
 
 
 @click.command()
-def main():
+def main() -> None:
+    """Generate a lexical index for OBO Foundry ontologies."""
     skip = {"pr"}
     prefixes = sorted(
         resource.prefix

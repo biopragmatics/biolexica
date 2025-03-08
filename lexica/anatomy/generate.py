@@ -17,6 +17,8 @@
 #
 # ///
 
+"""Generate a lexical index for anatomy resources."""
+
 from pathlib import Path
 
 import click
@@ -86,7 +88,7 @@ BIOLEXICA_CONFIG = biolexica.Configuration(
                 "NCIT:C12219",  # Anatomic Structure, System, or Substance
             ],
             processor="pyobo",
-            kwargs=dict(version="2024-05-07"),
+            kwargs={"version": "2024-05-07"},
         ),
         biolexica.Input(source="bto", processor="pyobo"),
         biolexica.Input(source="caro", processor="pyobo"),
@@ -98,6 +100,7 @@ BIOLEXICA_CONFIG = biolexica.Configuration(
 @click.command()
 @verbose_option
 def _main() -> None:
+    """Generate a lexical index for anatomy resources."""
     biolexica.assemble_terms(
         BIOLEXICA_CONFIG,
         processed_path=LITERAL_MAPPINGS_PATH,

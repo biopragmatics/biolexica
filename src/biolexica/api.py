@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import logging
 import typing as t
+from collections.abc import Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Sequence, TypeAlias, Union
+from typing import TYPE_CHECKING, Any, Literal, TypeAlias
 
 import ssslm
 from curies import Reference
@@ -16,14 +17,14 @@ if TYPE_CHECKING:
     import semra
 
 __all__ = [
+    "PREDEFINED",
     "Configuration",
     "Input",
+    "Processor",
+    "assemble_grounder",
     "assemble_terms",
     "get_literal_mappings",
     "load_grounder",
-    "Processor",
-    "PREDEFINED",
-    "assemble_grounder",
 ]
 
 logger = logging.getLogger(__name__)
@@ -40,19 +41,19 @@ class Input(BaseModel):  # type:ignore
 
     processor: Processor
     source: str
-    ancestors: Union[None, str, List[str]] = None
-    kwargs: Optional[Dict[str, Any]] = None
+    ancestors: None | str | list[str] = None
+    kwargs: dict[str, Any] | None = None
 
 
 class Configuration(BaseModel):
     """A configuration for construction of a lexicon."""
 
-    inputs: List[Input]
-    excludes: Optional[List[Reference]] = Field(
+    inputs: list[Input]
+    excludes: list[Reference] | None = Field(
         default=None,
         description="A list of CURIEs to exclude after processing is complete",
     )
-    mapping_configuration: Optional[semra.Configuration] = None
+    mapping_configuration: semra.Configuration | None = None
 
 
 PREDEFINED: TypeAlias = Literal["cell", "anatomy", "phenotype", "obo"]
@@ -74,9 +75,9 @@ def load_grounder(grounder: ssslm.GrounderHint) -> ssslm.Grounder:
 
 def assemble_grounder(
     configuration: Configuration,
-    mappings: Optional[List["semra.Mapping"]] = None,
+    mappings: list[semra.Mapping] | None = None,
     *,
-    extra_terms: Optional[List[LiteralMapping]] = None,
+    extra_terms: list[LiteralMapping] | None = None,
     include_biosynonyms: bool = True,
 ) -> ssslm.Grounder:
     """Assemble terms from multiple resources and load into a grounder."""
@@ -89,18 +90,18 @@ def assemble_grounder(
     return ssslm.make_grounder(literal_mappings)
 
 
-def assemble_terms(
+def assemble_terms(  # noqa:C901
     configuration: Configuration,
-    mappings: Optional[List["semra.Mapping"]] = None,
+    mappings: list[semra.Mapping] | None = None,
     *,
-    extra_terms: Optional[List[LiteralMapping]] = None,
+    extra_terms: list[LiteralMapping] | None = None,
     include_biosynonyms: bool = True,
-    raw_path: Optional[Path] = None,
-    processed_path: Optional[Path] = None,
-    gilda_path: Optional[Path] = None,
-) -> List[LiteralMapping]:
+    raw_path: Path | None = None,
+    processed_path: Path | None = None,
+    gilda_path: Path | None = None,
+) -> list[LiteralMapping]:
     """Assemble terms from multiple resources."""
-    terms: List[LiteralMapping] = []
+    terms: list[LiteralMapping] = []
     for inp in configuration.inputs:
         if inp.processor in {"pyobo", "bioontologies"}:
             terms.extend(
@@ -162,7 +163,7 @@ def assemble_terms(
 def get_literal_mappings(
     prefix: str,
     *,
-    ancestors: Union[None, str, Sequence[str]] = None,
+    ancestors: None | str | Sequence[str] = None,
     processor: Processor,
     **kwargs: Any,
 ) -> list[ssslm.LiteralMapping]:

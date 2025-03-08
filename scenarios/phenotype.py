@@ -22,8 +22,8 @@
 import click
 from bioliterature.analyze import count_cooccurrences, count_references
 from bioliterature.annotate import AnnotatedArticle
-from tabulate import tabulate
 from pubmed_downloader import iterate_process_articles
+from tabulate import tabulate
 
 from biolexica import load_grounder
 
@@ -32,7 +32,7 @@ def _main() -> None:
     grounder = load_grounder("phenotype")
 
     annotated_articles = []
-    for article, _ in zip(iterate_process_articles(), range(100000)):
+    for article, _ in zip(iterate_process_articles(), range(100000), strict=False):
         abstract = article.get_abstract()
         annotated_article = AnnotatedArticle(
             pubmed=str(article.pubmed),
@@ -60,9 +60,9 @@ def _main() -> None:
             [
                 (left.curie, left.name, right.curie, right.name, count)
                 for (
-                left,
-                right,
-            ), count in co_occurrence_counter.most_common(10)
+                    left,
+                    right,
+                ), count in co_occurrence_counter.most_common(10)
             ],
             headers=[
                 "Left Reference",

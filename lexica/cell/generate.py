@@ -17,6 +17,8 @@
 #
 # ///
 
+"""Generate a lexical index for cell resources."""
+
 from pathlib import Path
 
 import semra
@@ -43,7 +45,7 @@ BIOLEXICA_CONFIG = biolexica.Configuration(
             source="ncit",
             processor="pyobo",
             ancestors=["ncit:C12508"],
-            kwargs=dict(version="2024-05-07"),
+            kwargs={"version": "2024-05-07"},
         ),
     ]
 )
@@ -94,6 +96,7 @@ SEMRA_CONFIG = semra.Configuration(
 
 
 def _main() -> None:
+    """Generate a lexical index for cell resources."""
     mappings = SEMRA_CONFIG.get_mappings()
     biolexica.assemble_terms(
         BIOLEXICA_CONFIG,

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Generate and apply coherent biomedical lexica."""
 
 from .api import (
@@ -14,12 +12,12 @@ from .api import (
 )
 
 __all__ = [
+    "PREDEFINED",
     "Configuration",
     "Input",
+    "Processor",
+    "assemble_grounder",
     "assemble_terms",
     "get_literal_mappings",
     "load_grounder",
-    "Processor",
-    "PREDEFINED",
-    "assemble_grounder",
 ]
