@@ -13,9 +13,9 @@ from biolexica.api import PREDEFINED
 HERE = Path(__file__).parent.resolve()
 ROOT = HERE.parent
 LEXICA = ROOT.joinpath("lexica")
-CELL_TERMS = LEXICA.joinpath("cell", "terms.tsv.gz")
-ANATOMY_TERMS = LEXICA.joinpath("anatomy", "terms.tsv.gz")
-PHENOTYPE_TERMS = LEXICA.joinpath("phenotype", "terms.tsv.gz")
+CELL_TERMS = LEXICA.joinpath("cell", "cell.ssslm.tsv.gz")
+ANATOMY_TERMS = LEXICA.joinpath("anatomy", "anatomy.ssslm.tsv.gz")
+PHENOTYPE_TERMS = LEXICA.joinpath("phenotype", "phenotype.ssslm.tsv.gz")
 
 
 class TestLexica(unittest.TestCase):
