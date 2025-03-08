@@ -1,7 +1,6 @@
 """Version information for :mod:`biolexica`.
 
 Run with ``python -m biolexica.version``
-
 """
 
 import os
