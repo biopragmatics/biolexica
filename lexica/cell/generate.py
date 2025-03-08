@@ -44,8 +44,8 @@ BIOLEXICA_CONFIG = biolexica.Configuration(
         biolexica.Input(
             source="ncit",
             processor="pyobo",
-            ancestors=["ncit:C12508", "ncit:C192998"],  # FIXME check
-            kwargs={"version": "2024-05-07"},
+            ancestors=["ncit:C12508", "ncit:C192998"],
+            # kwargs={"version": "2024-05-07"},
         ),
         biolexica.Input(
             source="umls",
@@ -84,7 +84,12 @@ SEMRA_CONFIG = semra.Configuration(
             extras={"version": "2019"},
         ),
         semra.Input(prefix="ncit", source="pyobo", confidence=0.99),
-        semra.Input(prefix="umls", source="pyobo", confidence=0.99, extras={"version": "2023AB"}),
+        semra.Input(
+            prefix="umls",
+            source="pyobo",
+            confidence=0.99,
+            # extras={"version": "2023AB"},
+        ),
     ],
     add_labels=False,
     priority=PRIORITY,

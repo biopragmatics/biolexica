@@ -88,7 +88,7 @@ BIOLEXICA_CONFIG = biolexica.Configuration(
                 "NCIT:C12219",  # Anatomic Structure, System, or Substance
             ],
             processor="pyobo",
-            kwargs={"version": "2024-05-07"},
+            # kwargs={"version": "2024-05-07"},
         ),
         biolexica.Input(source="bto", processor="pyobo"),
         biolexica.Input(source="caro", processor="pyobo"),
