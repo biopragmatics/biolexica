@@ -1,3 +1,24 @@
+# /// script
+# requires-python = ">=3.12"
+# dependencies = [
+#     "biolexica",
+#     "pyobo",
+#     "semra",
+#     "bioontologies",
+#     "ssslm[gilda-slim]",
+# ]
+#
+# [tool.uv.sources]
+# semra = { path = "../../../semra", editable = true  }
+# biolexica = { path = "../..", editable = true  }
+# pyobo = { path = "../../../pyobo", editable = true }
+# ssslm = { path = "../../../ssslm", editable = true }
+# bioontologies = { path = "../../../bioontologies", editable = true }
+#
+# ///
+
+"""Generate a lexical index for cell resources."""
+
 from pathlib import Path
 
 import semra
@@ -5,7 +26,8 @@ import semra
 import biolexica
 
 HERE = Path(__file__).parent.resolve()
-TERMS_PATH = HERE.joinpath("terms.tsv.gz")
+LITERAL_MAPPINGS_PATH = HERE.joinpath("cell.ssslm.tsv.gz")
+GILDA_PATH = HERE.joinpath("terms.tsv.gz")
 
 PRIORITY = ["cl", "cellosaurus", "bto", "clo", "efo", "mesh", "ccle", "depmap"]
 BIOLEXICA_CONFIG = biolexica.Configuration(
@@ -19,7 +41,12 @@ BIOLEXICA_CONFIG = biolexica.Configuration(
         biolexica.Input(source="bto", processor="pyobo"),
         biolexica.Input(source="cl", processor="pyobo"),
         biolexica.Input(source="clo", processor="pyobo"),
-        biolexica.Input(source="ncit", processor="pyobo", ancestors=['ncit:C12508']),
+        biolexica.Input(
+            source="ncit",
+            processor="pyobo",
+            ancestors=["ncit:C12508"],
+            kwargs={"version": "2024-05-07"},
+        ),
     ]
 )
 
@@ -69,11 +96,13 @@ SEMRA_CONFIG = semra.Configuration(
 
 
 def _main() -> None:
+    """Generate a lexical index for cell resources."""
     mappings = SEMRA_CONFIG.get_mappings()
     biolexica.assemble_terms(
         BIOLEXICA_CONFIG,
         mappings=mappings,
-        processed_path=TERMS_PATH,
+        processed_path=LITERAL_MAPPINGS_PATH,
+        gilda_path=GILDA_PATH,
     )
 
 

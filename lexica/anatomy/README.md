@@ -1,6 +1,7 @@
 # Anatomy, Tissues, and Organ Systems
 
-This directory contains a coherent, merged lexical index for the following resources:
+This directory contains a coherent, merged lexical index for the following
+resources:
 
 1. uberon
 2. mesh
@@ -12,40 +13,43 @@ This directory contains a coherent, merged lexical index for the following resou
 
 The index can be regenerated with:
 
-```shell
-python generate.py
+```console
+$ uv run --script generate.py
 ```
+
+The resulting index is in the SSSLM format.
 
 ## Using in Python
 
 Use in Python like in the following:
 
 ```python
-import biolexica
-import gilda
+import ssslm
 
 INDEX = "anatomy"
-URL = f"https://github.com/biopragmatics/biolexica/raw/main/lexica/{INDEX}/terms.tsv.gz"
+URL = f"https://github.com/biopragmatics/biolexica/raw/main/lexica/{INDEX}/{INDEX}.ssslm.tsv.gz"
 
-grounder: gilda.Grounder = biolexica.load_grounder(URL)
-scored_matches = grounder.ground("brain")
+literal_mappings = ssslm.read_literal_mappings(URL)
+grounder = ssslm.make_grounder(literal_mappings)
+matches = grounder.get_matches("HeLA")
 ```
 
 ## Running an API
 
 If you've cloned the repository, you can run:
 
-```shell
-python web.py
+```console
+$ uv tool install ssslm[web,gilda-slim]
+$ uv tool run ssslm web anatomy.ssslm.tsv.gz
 ```
 
-If you have `biolexica[web]` installed, you can do:
+If you have `ssslm[web,gilda-slim]` installed, you can do:
 
 ```python
-from biolexica.web import run_app
+from ssslm.web import run_app
 
 INDEX = "anatomy"
-URL = f"https://github.com/biopragmatics/biolexica/raw/main/lexica/{INDEX}/terms.tsv.gz"
+URL = f"https://github.com/biopragmatics/biolexica/raw/main/lexica/{INDEX}/{INDEX}.ssslm.tsv.gz"
 
 run_app(URL)
 ```
