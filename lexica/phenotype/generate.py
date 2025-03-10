@@ -31,13 +31,7 @@ LITERAL_MAPPINGS_PATH = HERE.joinpath("phenotype.ssslm.tsv.gz")
 GILDA_PATH = HERE.joinpath("terms.tsv.gz")
 SUMMARY_PATH = HERE.joinpath("summary.json")
 
-PHENOTYPE_CONFIGURATION.mapping_configuration.raw_pickle_path = HERE.joinpath("mappings_raw.pkl.gz")
-PHENOTYPE_CONFIGURATION.mapping_configuration.processed_pickle_path = HERE.joinpath(
-    "mappings_processed.pkl.gz"
-)
-PHENOTYPE_CONFIGURATION.mapping_configuration.priority_pickle_path = HERE.joinpath(
-    "mappings_prioritized.pkl"
-)
+PHENOTYPE_CONFIGURATION.add_mapping_caches(HERE)
 
 
 def _main() -> None:

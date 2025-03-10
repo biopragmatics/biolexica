@@ -58,8 +58,12 @@ def main() -> None:
         if path.is_file():
             literal_mappings.extend(ssslm.read_literal_mappings(path))
         else:
-            local_literal_mappings = list(get_literal_mappings(prefix, processor="bioontologies"))
             with logging_redirect_tqdm():
+                try:
+                    local_literal_mappings = list(get_literal_mappings(prefix, processor="bioontologies"))
+                except ValueError as e:
+                    tqdm.write(click.style(f"Failed to parse {prefix}: {e}", fg='red'))
+                    continue
                 ssslm.write_literal_mappings(path=path, literal_mappings=local_literal_mappings)
             literal_mappings.extend(local_literal_mappings)
 
