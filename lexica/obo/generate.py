@@ -6,6 +6,7 @@
 #     "semra",
 #     "ssslm[gilda-slim]",
 #     "bioontologies",
+#     "biomappings",
 # ]
 #
 # [tool.uv.sources]
@@ -14,6 +15,7 @@
 # pyobo = { path = "../../../pyobo", editable = true }
 # ssslm = { path = "../../../ssslm", editable = true }
 # bioontologies = { path = "../../../bioontologies", editable = true }
+# biomappings = { path = "../../../biomappings", editable = true }
 #
 # ///
 
@@ -27,11 +29,12 @@ import ssslm
 from tqdm import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 
-from biolexica import get_literal_mappings
+from biolexica import get_literal_mappings, summarize_terms
 
 HERE = Path(__file__).parent.resolve()
 LITERAL_MAPPINGS_PATH = HERE.joinpath("obo.ssslm.tsv.gz")
 GILDA_PATH = HERE.joinpath("terms.tsv.gz")
+SUMMARY_PATH = HERE.joinpath("summary.json")
 CACHE = HERE.joinpath("cache")
 CACHE.mkdir(exist_ok=True, parents=True)
 
@@ -55,13 +58,22 @@ def main() -> None:
         if path.is_file():
             literal_mappings.extend(ssslm.read_literal_mappings(path))
         else:
-            local_literal_mappings = list(get_literal_mappings(prefix, processor="bioontologies"))
             with logging_redirect_tqdm():
+                try:
+                    local_literal_mappings = list(
+                        get_literal_mappings(prefix, processor="bioontologies")
+                    )
+                except ValueError as e:
+                    tqdm.write(click.style(f"Failed to parse {prefix}: {e}", fg="red"))
+                    continue
                 ssslm.write_literal_mappings(path=path, literal_mappings=local_literal_mappings)
             literal_mappings.extend(local_literal_mappings)
 
     ssslm.write_literal_mappings(path=LITERAL_MAPPINGS_PATH, literal_mappings=literal_mappings)
     ssslm.write_gilda_terms(literal_mappings, GILDA_PATH)
+
+    summary = summarize_terms(literal_mappings)
+    SUMMARY_PATH.write_text(summary.model_dump_json(indent=2))
 
 
 if __name__ == "__main__":

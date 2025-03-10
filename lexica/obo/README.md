@@ -15,7 +15,7 @@ terms:
 import json
 import ssslm
 
-url = "https://github.com/biopragmatics/biolexica/raw/main/lexica/obo/terms.tsv.gz"
+url = "https://github.com/biopragmatics/biolexica/raw/main/lexica/obo/obo.ssslm.tsv.gz"
 grounder = ssslm.make_grounder(url)
 
 obo_prefix = ...
@@ -40,21 +40,21 @@ for graph in data['graphs']:
 
         identifier = uri[len(obo_uri_prefix) :]
 
-        results = []
-        results.extend(grounder.get_matches(name))
-        results.extend(
-            scored_match
+        matches = []
+        matches.extend(grounder.get_matches(name))
+        matches.extend(
+            match
             for synonym in node.get("meta", {}).get("synonyms", [])
-            for scored_match in grounder.get_matches(synonym['val'])
+            for match in grounder.get_matches(synonym['val'])
         )
 
-        if not results:
+        if not matches:
             safe.append((identifier, name))
         else:
             print(f'- f`{obo_prefix}:{identifier}`', name)
-        for res in results:
-            curie = res.term.get_curie()
-            print(f'  - [`{curie}`](https://bioregistry.io/{curie}) {res.term.entry_name} ({round(res.score, 3)})')
+        for match in matches:
+            curie = match.curie
+            print(f'  - [`{curie}`](https://bioregistry.io/{curie}) {match.name} ({round(match.score, 3)})')
 
 print("\n## Lexical matching returned no results\n")
 for identifier, name in safe:
