@@ -900,3 +900,5 @@ FodyWeavers.xsd
 
 scratch/
 lexica/obo/cache
+# too big for github now, over 100MB
+lexica/obo/terms.tsv.gz
