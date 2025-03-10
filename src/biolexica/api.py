@@ -199,9 +199,9 @@ def get_literal_mappings(
         kwargs.setdefault("strict", False)
 
         if ancestor_refs is None:
-            return pyobo.get_literal_mappings(prefix, **kwargs)  # type:ignore
+            return pyobo.get_literal_mappings(prefix, **kwargs)
         else:
-            return pyobo.get_literal_mappings_subset(prefix, ancestors=ancestor_refs, **kwargs)  # type:ignore
+            return pyobo.get_literal_mappings_subset(prefix, ancestors=ancestor_refs, **kwargs)
     elif processor == "bioontologies":
         import bioontologies
 

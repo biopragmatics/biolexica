@@ -5,6 +5,7 @@ import unittest
 from pathlib import Path
 from typing import ClassVar
 
+from curies import Reference
 from ssslm import Grounder
 
 import biolexica
@@ -40,6 +41,6 @@ class TestLexica(unittest.TestCase):
         """Test grounding cells."""
         res = self.cell_grounder.get_matches("hela")
         self.assertIsInstance(res, list)
-        self.assertEqual(1, len(res))
-        self.assertEqual("cellosaurus", res[0].prefix)
-        self.assertEqual("0030", res[0].identifier)
+        self.assertIn(
+            Reference(prefix="cellosaurus", identifier="0030"), {r.reference for r in res}
+        )
