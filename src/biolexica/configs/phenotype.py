@@ -19,8 +19,8 @@ PRIORITY = [
 SEMRA_CONFIG = semra.Configuration(
     name="Cell and Cell Line Mappings",
     description="Originally a reproduction of the EFO/Cellosaurus/DepMap/CCLE scenario "
-                "posed in the Biomappings paper, this configuration imports several different cell and "
-                "cell line resources and identifies mappings between them.",
+    "posed in the Biomappings paper, this configuration imports several different cell and "
+    "cell line resources and identifies mappings between them.",
     inputs=[
         semra.Input(source="biomappings"),
         semra.Input(source="gilda"),
@@ -30,12 +30,7 @@ SEMRA_CONFIG = semra.Configuration(
         semra.Input(prefix="symp", source="pyobo", confidence=0.99),
         semra.Input(prefix="mesh", source="pyobo", confidence=0.99),
         semra.Input(prefix="efo", source="pyobo", confidence=0.99),
-        semra.Input(
-            prefix="umls",
-            source="pyobo",
-            confidence=0.99,
-            # extras={"version": "2023AB"},
-        ),
+        semra.Input(prefix="umls", source="pyobo", confidence=0.99),
         semra.Input(prefix="ncit", source="pyobo", confidence=0.99),
     ],
     add_labels=False,
@@ -68,12 +63,7 @@ PHENOTYPE_CONFIGURATION = biolexica.Configuration(
             ],
         ),
         biolexica.Input(source="efo", processor="pyobo", ancestors=["EFO:0000408"]),
-        biolexica.Input(
-            source="ncit",
-            processor="pyobo",
-            ancestors=["ncit:C2991"],
-            # kwargs={"version": "2024-05-07"},
-        ),
+        biolexica.Input(source="ncit", processor="pyobo", ancestors=["ncit:C2991"]),
         biolexica.Input(source="umls", processor="pyobo", ancestors=["umls:C0012634"]),
     ],
     excludes=["doid:4"],

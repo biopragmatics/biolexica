@@ -1,7 +1,5 @@
 """Configuration for a cell lexical index."""
 
-from pathlib import Path
-
 import semra
 
 import biolexica
@@ -47,12 +45,7 @@ SEMRA_CONFIG = semra.Configuration(
             extras={"version": "2019"},
         ),
         semra.Input(prefix="ncit", source="pyobo", confidence=0.99),
-        semra.Input(
-            prefix="umls",
-            source="pyobo",
-            confidence=0.99,
-            # extras={"version": "2023AB"},
-        ),
+        semra.Input(prefix="umls", source="pyobo", confidence=0.99),
     ],
     add_labels=False,
     priority=PRIORITY,
@@ -83,10 +76,7 @@ CELL_CONFIGURATION = biolexica.Configuration(
         biolexica.Input(source="cl", processor="pyobo"),
         biolexica.Input(source="clo", processor="pyobo"),
         biolexica.Input(
-            source="ncit",
-            processor="pyobo",
-            ancestors=["ncit:C12508", "ncit:C192998"],
-            # kwargs={"version": "2024-05-07"},
+            source="ncit", processor="pyobo", ancestors=["ncit:C12508", "ncit:C192998"]
         ),
         biolexica.Input(
             source="umls",
@@ -97,5 +87,5 @@ CELL_CONFIGURATION = biolexica.Configuration(
             ],
         ),
     ],
-    mapping_configuration=SEMRA_CONFIG
+    mapping_configuration=SEMRA_CONFIG,
 )
