@@ -9,6 +9,7 @@ from .api import (
     assemble_terms,
     get_literal_mappings,
     load_grounder,
+    summarize_terms,
 )
 
 __all__ = [
@@ -20,4 +21,5 @@ __all__ = [
     "assemble_terms",
     "get_literal_mappings",
     "load_grounder",
+    "summarize_terms",
 ]

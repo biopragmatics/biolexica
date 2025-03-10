@@ -67,6 +67,7 @@ dependencies = [
     "pandas",
     "tqdm",
     "click",
+    "biomappings",
 ]
 
 [project.optional-dependencies]
@@ -81,10 +82,10 @@ docs = [
     "sphinx_automodapi",
     "autodoc_pydantic",
 ]
-gilda =[
+gilda = [
     "ssslm[gilda]",
 ]
-gilda-slim =[
+gilda-slim = [
     "ssslm[gilda-slim]",
 ]
 

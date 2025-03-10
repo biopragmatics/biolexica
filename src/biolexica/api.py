@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import typing as t
+from collections import Counter
 from collections.abc import Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, TypeAlias
@@ -25,6 +26,7 @@ __all__ = [
     "assemble_terms",
     "get_literal_mappings",
     "load_grounder",
+    "summarize_terms",
 ]
 
 logger = logging.getLogger(__name__)
@@ -99,6 +101,7 @@ def assemble_terms(  # noqa:C901
     raw_path: Path | None = None,
     processed_path: Path | None = None,
     gilda_path: Path | None = None,
+    summary_path: Path | None = None,
 ) -> list[LiteralMapping]:
     """Assemble terms from multiple resources."""
     terms: list[LiteralMapping] = []
@@ -157,6 +160,10 @@ def assemble_terms(  # noqa:C901
     if gilda_path is not None:
         ssslm.write_gilda_terms(terms, gilda_path)
 
+    if summary_path is not None:
+        summary = summarize_terms(terms)
+        summary_path.write_text(summary.model_dump_json(indent=2))
+
     return terms
 
 
@@ -180,9 +187,9 @@ def get_literal_mappings(
         kwargs.setdefault("strict", False)
 
         if ancestor_refs is None:
-            return pyobo.get_literal_mappings(prefix, **kwargs)
+            return pyobo.get_literal_mappings(prefix, **kwargs)  # type:ignore
         else:
-            return pyobo.get_literal_mappings_subset(prefix, ancestors=ancestor_refs, **kwargs)
+            return pyobo.get_literal_mappings_subset(prefix, ancestors=ancestor_refs, **kwargs)  # type:ignore
     elif processor == "bioontologies":
         import bioontologies
 
@@ -194,3 +201,27 @@ def get_literal_mappings(
             )
     else:
         raise ValueError(f"Unknown processor: {processor}")
+
+
+class Summary(BaseModel):
+    """A model for summaries."""
+
+    count: int
+    provenance_counter: dict[str, int]
+    type_counter: dict[str, int]
+
+
+def summarize_terms(literal_mappings: list[LiteralMapping]) -> BaseModel:
+    """Summarize terms."""
+    provenance_counter: Counter[str] = Counter()
+    type_counter: Counter[str] = Counter()
+    for mapping in literal_mappings:
+        for ref in mapping.provenance:
+            provenance_counter[ref.prefix] += 1
+        if mapping.type is not None:
+            type_counter[mapping.type.curie] += 1
+    return Summary(
+        count=len(literal_mappings),
+        provenance_counter=dict(provenance_counter),
+        type_counter=dict(type_counter),
+    )
