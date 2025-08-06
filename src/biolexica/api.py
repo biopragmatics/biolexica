@@ -134,9 +134,15 @@ def assemble_terms(  # noqa:C901
         logger.info("Writing %d raw literal mappings to %s", len(terms), raw_path)
         ssslm.write_literal_mappings(terms, raw_path)
 
-    _mappings = []
-    if configuration.mapping_configuration:
-        _mappings.extend(configuration.mapping_configuration.get_mappings())
+    _mappings: list[semra.Mapping] = []
+    if configuration.mapping_configuration is not None:
+        from semra.pipeline import AssembleReturnType
+
+        _mappings.extend(
+            configuration.mapping_configuration.get_mappings(
+                return_type=AssembleReturnType.priority
+            )
+        )
     if mappings is not None:
         _mappings.extend(mappings)
 
@@ -146,7 +152,7 @@ def assemble_terms(  # noqa:C901
         assert_projection(_mappings)
         terms = ssslm.remap_literal_mappings(
             literal_mappings=terms,
-            mappings=[(mapping.s, mapping.o) for mapping in _mappings],
+            mappings=[(mapping.subject, mapping.object) for mapping in _mappings],
         )
 
     if configuration.excludes:
