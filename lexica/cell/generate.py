@@ -31,8 +31,6 @@ LITERAL_MAPPINGS_PATH = HERE.joinpath("cell.ssslm.tsv.gz")
 GILDA_PATH = HERE.joinpath("terms.tsv.gz")
 SUMMARY_PATH = HERE.joinpath("summary.json")
 
-CELL_CONFIGURATION.add_mapping_caches(HERE)
-
 
 def _main() -> None:
     """Generate a lexical index for cell resources."""

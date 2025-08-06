@@ -57,18 +57,6 @@ class Configuration(BaseModel):
     )
     mapping_configuration: semra.Configuration | None = None
 
-    def add_mapping_caches(self, directory: Path) -> None:
-        """Add a cache to the directory for raw, processed, and priority mappings."""
-        if self.mapping_configuration is None:
-            raise ValueError
-        self.mapping_configuration.raw_pickle_path = directory.joinpath("mappings_raw.pkl.gz")
-        self.mapping_configuration.processed_pickle_path = directory.joinpath(
-            "mappings_processed.pkl.gz"
-        )
-        self.mapping_configuration.priority_pickle_path = directory.joinpath(
-            "mappings_prioritized.pkl"
-        )
-
 
 PREDEFINED: TypeAlias = Literal["cell", "anatomy", "phenotype", "obo"]
 URL_FMT = "https://github.com/biopragmatics/biolexica/raw/main/lexica/{key}/{key}.ssslm.tsv.gz"

@@ -59,7 +59,7 @@ dependencies = [
     "semra",
     "ssslm>=0.0.10",
     "bioregistry",
-    "pyobo @ git+https://github.com/biopragmatics/pyobo",
+    "pyobo",
     "bioontologies>=0.6.0",
     "biosynonyms",
     "pandas",

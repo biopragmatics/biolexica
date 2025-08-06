@@ -33,8 +33,6 @@ LITERAL_MAPPINGS_PATH = HERE.joinpath("anatomy.ssslm.tsv.gz")
 GILDA_PATH = HERE.joinpath("terms.tsv.gz")
 SUMMARY_PATH = HERE.joinpath("summary.json")
 
-ANATOMY_CONFIGURATION.add_mapping_caches(HERE)
-
 
 @click.command()
 def _main() -> None:
