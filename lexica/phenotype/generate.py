@@ -31,8 +31,6 @@ LITERAL_MAPPINGS_PATH = HERE.joinpath("phenotype.ssslm.tsv.gz")
 GILDA_PATH = HERE.joinpath("terms.tsv.gz")
 SUMMARY_PATH = HERE.joinpath("summary.json")
 
-PHENOTYPE_CONFIGURATION.add_mapping_caches(HERE)
-
 
 def _main() -> None:
     """Generate a lexical index for phenotype resources."""

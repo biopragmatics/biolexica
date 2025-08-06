@@ -57,18 +57,6 @@ class Configuration(BaseModel):
     )
     mapping_configuration: semra.Configuration | None = None
 
-    def add_mapping_caches(self, directory: Path) -> None:
-        """Add a cache to the directory for raw, processed, and priority mappings."""
-        if self.mapping_configuration is None:
-            raise ValueError
-        self.mapping_configuration.raw_pickle_path = directory.joinpath("mappings_raw.pkl.gz")
-        self.mapping_configuration.processed_pickle_path = directory.joinpath(
-            "mappings_processed.pkl.gz"
-        )
-        self.mapping_configuration.priority_pickle_path = directory.joinpath(
-            "mappings_prioritized.pkl"
-        )
-
 
 PREDEFINED: TypeAlias = Literal["cell", "anatomy", "phenotype", "obo"]
 URL_FMT = "https://github.com/biopragmatics/biolexica/raw/main/lexica/{key}/{key}.ssslm.tsv.gz"
@@ -146,9 +134,15 @@ def assemble_terms(  # noqa:C901
         logger.info("Writing %d raw literal mappings to %s", len(terms), raw_path)
         ssslm.write_literal_mappings(terms, raw_path)
 
-    _mappings = []
-    if configuration.mapping_configuration:
-        _mappings.extend(configuration.mapping_configuration.get_mappings())
+    _mappings: list[semra.Mapping] = []
+    if configuration.mapping_configuration is not None:
+        from semra.pipeline import AssembleReturnType
+
+        _mappings.extend(
+            configuration.mapping_configuration.get_mappings(
+                return_type=AssembleReturnType.priority
+            )
+        )
     if mappings is not None:
         _mappings.extend(mappings)
 
@@ -158,7 +152,7 @@ def assemble_terms(  # noqa:C901
         assert_projection(_mappings)
         terms = ssslm.remap_literal_mappings(
             literal_mappings=terms,
-            mappings=[(mapping.s, mapping.o) for mapping in _mappings],
+            mappings=[(mapping.subject, mapping.object) for mapping in _mappings],
         )
 
     if configuration.excludes:
